@@ -27,3 +27,26 @@ You will find a sub folder for each provisioning method mentioned above. In the 
 
  TODO
 [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
+
+
+
+
+
+
+
+## My Project
+
+TODO: Fill this README out!
+
+Be sure to:
+
+* Change the title in this README
+* Edit your repository description on GitHub
+
+## Security
+
+See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+
+## License
+
+This library is licensed under the MIT-0 License. See the LICENSE file.
