@@ -1,0 +1,40 @@
+
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+
+
+#this is a dockerfile to create a golden image for JITP with AWS IoT Core
+#This is a example file meant only for simulation. Certificate Key should never been tranfered into a container. 
+
+#TODO add pip install requeriments
+FROM ubuntu
+WORKDIR /opt/iot_agent
+ADD iot_agent /opt/iot_agent
+
+RUN cd /opt/iotdevice
+RUN apt update -y
+RUN apt upgrade -y
+RUN apt install python3 -y
+RUN apt install python3-pip -y  
+RUN pip install -r requirements.txt
+RUN apt install openssl
+RUN apt install wget -y
+RUN pip install awsiotsdk
+RUN apt install git -y
+RUN git clone https://github.com/aws/aws-iot-device-sdk-python-v2.git
+
