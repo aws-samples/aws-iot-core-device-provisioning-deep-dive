@@ -21,12 +21,12 @@
 #this is a dockerfile to create a golden image for JITP with AWS IoT Core
 #This is a example file meant only for simulation. Certificate Key should never been tranfered into a container. 
 
-#TODO add pip install requeriments
 FROM ubuntu
 WORKDIR /opt/iot_agent
 ADD iot_agent /opt/iot_agent
 
-RUN cd /opt/iotdevice
+EXPOSE 8080
+RUN cd /opt/iot_agent
 RUN apt update -y
 RUN apt upgrade -y
 RUN apt install python3 -y
