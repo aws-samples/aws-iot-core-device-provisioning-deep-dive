@@ -31,12 +31,17 @@ RUN apt-get install python3 -y
 RUN apt install openssl
 RUN apt install wget -y
 RUN apt install uuid-runtime
-RUN wget -O root.cert https://www.amazontrust.com/repository/AmazonRootCA1.pem
+RUN wget -O AmazonRootCA1.pem https://www.amazontrust.com/repository/AmazonRootCA1.pem
 
 
 RUN apt-get install mosquitto -y
 RUN apt-get install mosquitto-clients -y
 
-CMD export DOCKER_ID=$(uuidgen); DEVICE_INFO="/C=US/ST=CO/O=AWS/CN=JITR-device-${DOCKER_ID}"; openssl genrsa -out deviceCert.key 2048; openssl req -new -key deviceCert.key -out deviceCert.csr -subj $DEVICE_INFO; openssl x509 -req -in deviceCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out deviceCert.crt -days 365 -sha256; cat deviceCert.crt rootCA.pem > deviceCertAndCACert.crt; python3 simple_simulator.py
+CMD export DOCKER_ID=$(uuidgen); 
+DEVICE_INFO="/C=US/ST=CO/O=AWS/CN=JITR-device-${DOCKER_ID}"; 
+openssl genrsa -out deviceCert.key 2048; openssl req -new -key 
+deviceCert.key -out deviceCert.csr -subj $DEVICE_INFO; 
+openssl x509 -req -in deviceCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out deviceCert.crt -days 365 -sha256; 
+cat deviceCert.crt rootCA.pem > deviceCertAndCACert.crt; python3 simple_simulator.py
 
  

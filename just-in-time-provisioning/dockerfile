@@ -14,27 +14,26 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## Code of Conduct
+# This project has adopted the [Amazon Open Source Code of Conduct](https://aws.github.io/code-of-conduct).
+# For more information see the [Code of Conduct FAQ](https://aws.github.io/code-of-conduct-faq) or contact
+# opensource-codeofconduct@amazon.com with any additional questions or comments.
 
 
+FROM ubuntu:latest
 
+WORKDIR /opt/iot_client
 
-#this is a dockerfile to create a golden image for JITP with AWS IoT Core
-#This is a example file meant only for simulation. Certificate Key should never been tranfered into a container. 
+# Copy the application code
+COPY iot_client /opt/iot_client
 
-FROM ubuntu
-WORKDIR /opt/iot_agent
-ADD iot_agent /opt/iot_agent
+# Update and install dependencies
+RUN apt update -y \
+    && apt upgrade -y \
+    && apt install python3 python3-pip openssl wget git -y \
+    && pip install -r requirements.txt \
+    && pip install awsiotsdk \
+    && git clone https://github.com/aws/aws-iot-device-sdk-python-v2.git
 
-EXPOSE 8080
-RUN cd /opt/iot_agent
-RUN apt update -y
-RUN apt upgrade -y
-RUN apt install python3 -y
-RUN apt install python3-pip -y  
-RUN pip install -r requirements.txt
-RUN apt install openssl
-RUN apt install wget -y
-RUN pip install awsiotsdk
-RUN apt install git -y
-RUN git clone https://github.com/aws/aws-iot-device-sdk-python-v2.git
-
+#Run the Python scripts to create and sign certificate, then starts sample from AWS IOT DEVICE PYTHON SDK
+CMD ["python3", "/opt/iot_client/device_cert_gen.py"]

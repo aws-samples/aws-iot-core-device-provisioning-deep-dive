@@ -17,4 +17,9 @@ pyenv.cfg
 *.key
 *.pem
 *.crt
+*.slr
+
+#Ignore logs
+*.log
+*/logs
 

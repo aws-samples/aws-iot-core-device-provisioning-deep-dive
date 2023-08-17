@@ -206,15 +206,25 @@ Now that you have all resource in place and understand the template, you can exe
 ### Registering a Private CA 
  Next is to register the Private CA authority which will be used to invoke a registration by the template. OpenSSL is required for the following steps, make sure you have installed and configured.Note: all the OpenSSL commands used in this project are for educational purposes only, make sure you understand your use case, and have done the necessary work to select the correct signing algorithm. 
 
-* Create a certificate to be used as Private CA by running the following OpenSSL commands:
+* Create a certificate to be used as Private CA by running the following OpenSSL commands, note that you will be using the **rootCA_openssl.conf**, that makes sure your CA is adhering to the minimal requirements. 
 
     ```    
     openssl genrsa -out rootCA.key 2048
+
+    openssl req -new -sha256 -key rootCA.key -nodes -out rootCA.csr -config rootCA_openssl.conf
+
     ```
     ```
-    openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1024 -out rootCA.pem
+    openssl x509 -req -days 3650 -extfile rootCA_openssl.conf -extensions v3_ca -in rootCA.csr -signkey rootCA.key -out rootCA.pem
     ```
-    Fill the signing form. Feel free to use any value you like, but fill all fields. Use the CommonName as **AnyCompany IoT Fleet RootCA** .
+    Fill the signing form. Feel free to use any value you like, but fill all field, as the Certificate DN as a way to identify Certificates. An example below: 
+   -----
+   Country Name []:US
+   State []:CO
+   City []:Denver
+   Organization []:AnyCompany
+   Organization Unit []:All
+   Common Name []:IoT Devices Root CA
 
 * Create verification code certificate.The verificationCert.pem file we get from this step will be used when we register the CA certificate. This is necessary step which protects the registration, the service or user registering must be able to acquire a verification code. 
     
@@ -230,7 +240,7 @@ Now that you have all resource in place and understand the template, you can exe
     openssl req -new -key verificationCert.key -out verificationCert.csr 
     ```
 
-    Now we need to set the Common Name field of the certificate with the registration code:
+    Now you need to set the Common Name field of the certificate with the registration code:
 
     **Common Name (e.g. server FQDN or YOUR name) []: XXXXXXXREGISTRATION-CODEXXXXXXX**
 
@@ -239,48 +249,36 @@ Now that you have all resource in place and understand the template, you can exe
     ```
 
 * Register the CA certificate.
-This is the final step of the registration, there are many modes in which a CA can be registered, to understand that better please read [Manage your CA certificates](https://docs.aws.amazon.com/iot/latest/developerguide/manage-your-CA-certs.html).
+This is the final step of the registration, there are a few modes in which a CA can be registered, to understand that better please read [Manage your CA certificates](https://docs.aws.amazon.com/iot/latest/developerguide/manage-your-CA-certs.html).
 In the example below we are registering for a single account, active and with auto-registration on. The auto-registration will invoke the provisioning template.
 
     ```
     aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration --registration-config templateName=jitp-provisioning-template
     ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### Testing the provisioning template and deploying a fleet 
 
-For this next step we will be creating a Simulation fleet using Docker containers to simulate a IoT thing.
+For this next step you will be creating a Simulation fleet using Docker containers that simulate an IoT client device, using the [AWS IoT V2 SDK for Python](https://github.com/aws/aws-iot-device-sdk-python-v2).
 
-* Run the following commands to create a Docker image. Note that in this Simulation example the Root Ca key will be part of the Container image, which should never be applied in a production environment.!!!Important to notice this is a strictly for demonstration purpose example, CA keys should never be store in device images!!!
+   **Important** This simulation is using a simple x509 certificate and not a "chain certificate", in this use case make sure no other Private CA with the same subject name is present in IoT Core.
+
+   The Diagram below describes what you are about to do.
+   * The simulation.py will build a container Image based on the present DOCKERFILE.
+   * The simulation will use the provided arguments (endpoint and FleetSize) to create docker containers.
+   *  In the background the Signing_service.py will start.
+   *  As the containers start, they will self generate unique Certificate Keys, and request the signing_service.py for a CA signature. **Note:**This is an educational example of how certificates can be signed on a secure and completely isolated network, do not replicate this method without proper understanding of manufacturing with x509 certificates. 
+   *  With a signed certificate each container will connect to AWS IoT Core and start the JITP flow, they will then successfully connect and publish messages.
 
 
-    ```
-    mv rootCA.key ./iotdevice/rootCA.key
-    mv rootCA.pem ./iotdevice/rootCA.pem
-    docker build --tag golden-image-jitp .
-    ```
-* Now we get the endpoint for your AWS IoT core and run the simulation 
+         ### PLACEHOLDER - DIAGRAM
 
-    ```
-    aws iot describe-endpoint \
-    --endpoint-type iot:Data-ATS
-    ```
-    Use it to run the next command. Also feel free to simulate as many devices as you like by change the number 20 to anything else. (Keep in mind too many containers will crash your Instance if not properly sized)
+   Simply start the simulation with ENDPOINT and desire Fleet size. 
 
-    ```
-    python3 simulate_fleet.py -e <YOUR-ENDPOINT-HERE> -n 20
-    ```
-Check your AWS IoT Core - Under things, you should see the device populating the registry list with random UUIDs
+   ```
+   Python3 simulation.py -e <YOUR-IOT-CORE-ATS_ENDPOINT> -n <NUMBER-OF-DESIRED-DEVICES>
+   ```
+
+
+
+
+### Next steps

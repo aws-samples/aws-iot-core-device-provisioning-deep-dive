@@ -1,0 +1,41 @@
+#2 [internal] load .dockerignore
+#2 sha256:4bbe601f107593f57b8bc322b5aebfec281ab006c218d6e033b5e2f279a41f48
+#2 transferring context: 2B done
+#2 DONE 0.0s
+
+#1 [internal] load build definition from Dockerfile
+#1 sha256:ef3add9c7a3f0e0d46afd67edb5141ba319368df315a1dbc5419b922ae3dca09
+#1 transferring dockerfile: 1.91kB done
+#1 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/ubuntu:latest
+#3 sha256:abd44fdc5704a1f31ce24272a9c459712f2a16d9c7c7ce9bcc7a9b6c11e01aa9
+#3 DONE 0.0s
+
+#8 [1/4] FROM docker.io/library/ubuntu:latest
+#8 sha256:e3acda44078840c3a173601a2f7b12df90a695c0e0cb70fa6522ed9754926fe6
+#8 DONE 0.0s
+
+#6 [internal] load build context
+#6 sha256:410dd901cd00c9ae12a4cbbaf9f8d4396a4e77b7a4a7e2f3541057ce0b6c200d
+#6 transferring context: 544B done
+#6 DONE 0.0s
+
+#7 [2/4] WORKDIR /opt/iot_client
+#7 sha256:ff222441700233a4cb62df5f857ef8e66e5da46b4561b06c3847ddc5ff834578
+#7 CACHED
+
+#5 [3/4] COPY iot_client /opt/iot_client
+#5 sha256:0af92cf55262ea5cb1306ec64e68ba431f2d09dbdbe9838c52f88870a36c0963
+#5 CACHED
+
+#4 [4/4] RUN apt update -y     && apt upgrade -y     && apt install python3 python3-pip openssl wget git -y     && pip install -r requirements.txt     && pip install awsiotsdk     && git clone https://github.com/aws/aws-iot-device-sdk-python-v2.git
+#4 sha256:57dd09170e17c849c92ef59a3205a314ba4ce1555eafaf319f6b6c9852e614a9
+#4 CACHED
+
+#9 exporting to image
+#9 sha256:fff48f6ecfab5a82b57ea0c38ab29a8e91c80043c4dc0d8c82f30179cebcf71c
+#9 exporting layers done
+#9 writing image sha256:e37d4dc200566239258e6ab2d14f0b465c707a9e9c48184289f19b90bd98b357 done
+#9 naming to docker.io/library/jitp-iot-client-img:latest done
+#9 DONE 0.0s
