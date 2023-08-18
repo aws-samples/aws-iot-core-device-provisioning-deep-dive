@@ -8,7 +8,7 @@ Just in time provisioning has a dependency on using a private certificate author
 
 The flow diagram below explains each action that happens in a JITP provisioning flow, note that some of those are not part of the flow itself, but actions that have to be done by a security administrator and manufacturing prior to the first connection. 
 
-![JITP flow](/images/jitp-flow.png)
+![JITP flow](/assets/jitp-flow.png)
 
 
 ### Pre-requisites 
@@ -277,7 +277,7 @@ For this next step you will be creating a Simulation fleet using Docker containe
    *  As the containers start, they will self generate unique Certificate Keys, and request the signing_service.py for a CA signature. **Note:**This is an educational example of how certificates can be signed on a secure and completely isolated network, do not replicate this method without proper understanding of manufacturing with x509 certificates. 
    *  With a signed certificate each container will connect to AWS IoT Core and start the JITP flow, they will then successfully connect and publish messages.
 
-![JITP simulation flow](/images/deep-dive-jitp.png)
+![deep-dive-jitp.drawio](/assets/deep-dive-jitp.drawio.png)
 
    Simply start the simulation with ENDPOINT and desire Fleet size. 
 
