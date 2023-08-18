@@ -3,6 +3,7 @@
 TODO 
    [] Scope thing policy down 
    [] optimize template
+   [] update git ignore to clean the keys and certs
 ### Introduction
 In this section you will execute every step to configure AWS IoT Core for JITP, and run a simulation fleet using JITP. Note this is a strictly educational project, and the example and samples utilized here should not be implemented into projects without changes. For more information go to [Just in time provisioning documentation page](https://docs.aws.amazon.com/iot/latest/developerguide/jit-provisioning.html). 
 

@@ -17,7 +17,22 @@
        "Type": "AWS::IoT::Thing",
        "Properties": {
          "ThingName": {
-           "Ref": "AWS::IoT::Certificate::SerialNumber"
+            "Ref":"AWS::IoT::Certificate::SerialNumber"
+         },
+         "AttributePayload":{
+            "hardwareVersion":{
+               "Ref": "AWS::IoT::Certificate::CommonName"
+             },
+            "serialNumber":{
+               "Ref": "AWS::IoT::Certificate::SerialNumber"
+             }
+         },
+         "ThingTypeName":"AnyType",
+         "ThingGroups":"AnyCompany",
+         "OverrideSettings":{
+            "AttributePayload":"MERGE",
+            "ThingTypeName":"REPLACE",
+            "ThingGroups":"MERGE"
          }
        }
      },
