@@ -30,7 +30,6 @@ opensource-codeofconduct@amazon.com with any additional questions or comments.
 #dependecies
 import subprocess
 import random
-import uuid
 from OpenSSL import crypto
 from retrying import retry
 import requests
@@ -41,12 +40,13 @@ import os
 working_path= Path(__file__).resolve().parent
 certs_path = working_path /"certs" 
 
-# Define function to set environment variables using the device certificate information.
-def set_environment_variables(CN, O, OU):
+#Define function to set ENV variable
+def set_global_environment_variable(variable_name, value):
     try:
-        os.environ["DEVICE_CN"] = CN
-        os.environ["DEVICE_O"] = O
-        os.environ["DEVICE_OU"] = OU
+        # Convert the value to a string and remove curly braces
+        value_str = str(value).replace('{', '').replace('}', '')
+        os.environ[variable_name] = value_str
+        print(f"Set {variable_name} to {value_str}")
     except Exception as e:
         print(e)
 
@@ -89,29 +89,26 @@ def device_cert_gen():
                 return None
             return random.choice(string_list)
 
-        #Generate UUID (Device serial number)
-        Device_serial_number = str(uuid.uuid4()).replace('-', '')
-
         #Generate random OU
         OU_list = ["Dev", "Prod", ""]
         OU = select_random_string(OU_list)
 
         #Generate random version 
-        VERSION_list = ["HW100", "HW103", "HW200", "HW204"]
+        VERSION_list = ["HW-100", "HW-103", "HW-200", "HW-204"]
         VERSION = select_random_string(VERSION_list)
 
         #Build Commmon Name
-        CN = f"AnyType-{VERSION}-{Device_serial_number}"
+        CN = f"{VERSION}"
 
         #Organization 
         O = "AnyCompany"
 
-        # Set environment variables using the device certificate information
-        set_environment_variables(CN, O, OU)
+        #Define DN Qualifier (using for Thing Type)
+        DNQ = "AnyType"
 
-        print(f"Device CSR will be generated with the following DN - /O={O}/OU={OU}/CN={CN}")
+        print(f"Device CSR will be generated with the following DN - /O={O}/OU={OU}/CN={CN}/dnQualifier={DNQ}")
 
-        return [CN, O, OU, VERSION]
+        return [CN, O, OU, DNQ]
     
     except Exception as e:
         print(e)
@@ -119,8 +116,7 @@ def device_cert_gen():
 
     
 #Define function to generate Device keys and certificate CSR. 
-def generate_key_and_csr_with_dn(key_name, common_name, organization, organizational_unit,path):
-    
+def generate_key_and_csr_with_dn(key_name, common_name, organization, organizational_unit, dnQualifier, path):
     try:
         # Check if deviceCert.csr is already present
         csr_file_path = os.path.join(path, "deviceCert.csr")
@@ -132,21 +128,23 @@ def generate_key_and_csr_with_dn(key_name, common_name, organization, organizati
         key = crypto.PKey()
         key.generate_key(crypto.TYPE_RSA, 2048)
 
-        #adding excpetion for organizational unit Example
+        # Adding exception for organizational unit Example
         if organizational_unit == "":
             # Generate a certificate signing request (CSR) without OU
             req = crypto.X509Req()
             req.get_subject().CN = common_name
             req.get_subject().O = organization
+            req.get_subject().dnQualifier = dnQualifier
             req.get_subject().serialNumber 
             req.set_pubkey(key)
             req.sign(key, "sha256")
         else:
-            # Generate a certificate signing request (CSR) with OU
+            # Generate a certificate signing request (CSR) 
             req = crypto.X509Req()
             req.get_subject().CN = common_name
             req.get_subject().O = organization
             req.get_subject().OU = organizational_unit
+            req.get_subject().dnQualifier = dnQualifier
             req.get_subject().serialNumber 
             req.set_pubkey(key)
             req.sign(key, "sha256")
@@ -154,22 +152,22 @@ def generate_key_and_csr_with_dn(key_name, common_name, organization, organizati
         # Save the private key in file
         with open(f"{path}/{key_name}.key", "wb") as key_file:
             key_file.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, key))
-        #return CSR as variable to be used on HTTP request.
+        # Return CSR as variable to be used on HTTP request.
         # Convert the CSR to a PEM-formatted string
-        #Also ves the CSR in a file
+        # Also save the CSR in a file
         with open(f"{path}/{key_name}.csr", "wb") as csr_file:
             csr_file.write(crypto.dump_certificate_request(crypto.FILETYPE_PEM, req))
         csr_pem = crypto.dump_certificate_request(crypto.FILETYPE_PEM, req).decode('utf-8')
 
-        #print results
+        # Print results
         print(f"Private key saved to {path}/{key_name}.key")
         print(f"CSR saved to {path}/{key_name}.csr")
         csr = crypto.load_certificate_request(crypto.FILETYPE_PEM, csr_pem)
         print(f"CSR_Details:{csr.get_subject()}")
 
         return csr_pem
-    
-    except Exception as e: 
+
+    except Exception as e:
         print(e)
 
 
@@ -199,14 +197,24 @@ def send_csr_to_server(csr, server_url, certificate_file_path):
                 cert_file.write(response.text)
             
             print(f"Certificate saved to {certificate_file_path}")
-        
-            #Start MQTT connection and test script
-            run_script_in_background(working_path / "iot_client_simulation.py")
                                      
         else:
             raise Exception(f"Error sending CSR to the server. Status code: {response.status_code}\nServer response: {response.text}")
     except Exception as e:
         print(e)
+
+#Define a function to extract the Device certificate Serial number from signed Certificate
+def get_serial_number_from_crt(crt_file_path):
+    try:
+        with open(crt_file_path, "rb") as crt_file:
+            crt_data = crt_file.read()
+            cert = crypto.load_certificate(crypto.FILETYPE_PEM, crt_data)
+            serial_number = cert.get_serial_number()
+            print(f"Certificate Serial Number: {serial_number}")
+            return serial_number
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
 
 #Main (single execution)
 
@@ -214,9 +222,18 @@ def send_csr_to_server(csr, server_url, certificate_file_path):
 device_cert_dn = device_cert_gen()
 
 #Generate Device Key and CSR with DN.
-csr = generate_key_and_csr_with_dn("deviceCert", device_cert_dn[0], device_cert_dn[1], device_cert_dn[2],certs_path) 
+csr = generate_key_and_csr_with_dn("deviceCert", device_cert_dn[0], device_cert_dn[1], device_cert_dn[2], device_cert_dn[3], certs_path) 
 
-#Request CSR to server.
+#Request CSR signature to server.
 host_ip = get_ip_address()
 host = f"http://{host_ip}:8080"
 send_csr_to_server(csr, server_url=host, certificate_file_path=certs_path)
+
+#Extract the serial number from the signed certificate
+certificate_serial_number = get_serial_number_from_crt(f"{certs_path}/deviceCert.crt")
+
+#Set serial number as global environment variable
+set_global_environment_variable("SERIAL_NUMBER", {certificate_serial_number})
+
+#Start MQTT connection and test script
+run_script_in_background(working_path / "iot_client_simulation.py")

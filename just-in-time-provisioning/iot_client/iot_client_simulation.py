@@ -33,14 +33,15 @@ import os
 #Get environment variables
 def run_command():
     endpoint = os.environ.get("IOT_ENDPOINT")
-    client_id = os.environ.get("DEVICE_CN")
-    organization = os.environ.get("DEVICE_O")
+    client_id = os.environ.get("SERIAL_NUMBER")
+    organization = "AnyCompany"
     topic = f"/{organization}/{client_id}/telemetry"
 
     if not endpoint or not client_id or not topic:
-        print("Missing environment variables. Please set IOT_ENDPOINT, DEVICE_CN, and DEVICE_O")
+        print("Missing environment variables. Please set IOT_ENDPOINT or SERIAL_NUMBER")
         return
     
+    print(f"Building MQTT client for {endpoint} with client id {client_id} and topic {topic}")
     #AWS IoT Core PUBSUB sample command
     command = [
         "python3", "/opt/iot_client/aws-iot-device-sdk-python-v2/samples/pubsub.py",

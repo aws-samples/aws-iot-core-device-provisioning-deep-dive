@@ -1,41 +1,40 @@
 {
-   "Parameters":{
-      "AWS::IoT::Certificate::Id":{
-         "Type":"String"
-      },
-      "AWS::IoT::Certificate::CommonName":{
-         "Type":"String"
-      },
-      "AWS::IoT::Certificate::OrganizationalUnit":{
-         "Type":"String"
-      }
+   "Parameters": {
+     "AWS::IoT::Certificate::Id": {
+       "Type": "String"
+     },
+     "AWS::IoT::Certificate::CommonName": {
+       "Type": "String"
+     }, "AWS::IoT::Certificate::SerialNumber": {
+      "Type": "String"
+     },
+     "AWS::IoT::Certificate::Organization": {
+       "Type": "String"
+     }
    },
-   "Resources":{
-      "thing":{
-         "Type":"AWS::IoT::Thing",
-         "Properties":{
-            "ThingName":{
-               "Ref":"AWS::IoT::Certificate::CommonName"
-            }
+   "Resources": {
+     "thing": {
+       "Type": "AWS::IoT::Thing",
+       "Properties": {
+         "ThingName": {
+           "Ref": "AWS::IoT::Certificate::SerialNumber"
          }
-      },
-      "certificate":{
-         "Type":"AWS::IoT::Certificate",
-         "Properties":{
-            "CertificateId":{
-               "Ref":"AWS::IoT::Certificate::Id"
-            },
-            "Status":"ACTIVE"
-         }
-      },
-      "policy":{
-         "Type":"AWS::IoT::Policy",
-         "Properties":{
-            "PolicyName":"ALLOW_ALL_TEST_ONLY"
-         }
-      }
+       }
+     },
+     "certificate": {
+       "Type": "AWS::IoT::Certificate",
+       "Properties": {
+         "CertificateId": {
+           "Ref": "AWS::IoT::Certificate::Id"
+         },
+         "Status": "ACTIVE"
+       }
+     },
+     "policy": {
+       "Type": "AWS::IoT::Policy",
+       "Properties": {
+         "PolicyName": "AnyTypeThing-policy"
+       }
+     }
    }
-}
-
-
-
+ }

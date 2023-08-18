@@ -31,6 +31,7 @@ import socketserver
 from OpenSSL import crypto
 from pathlib import Path
 import logging
+import uuid
 
 # Define working path
 working_path = Path(__file__).resolve().parent
@@ -70,7 +71,7 @@ class CSRHandler(http.server.BaseHTTPRequestHandler):
             signed_cert = crypto.X509()
             signed_cert.set_subject(csr_subject)
             signed_cert.set_pubkey(csr.get_pubkey())
-            signed_cert.set_serial_number(1)
+            signed_cert.set_serial_number(uuid.uuid4().int)  # Generate a UUID-based serial number)
             signed_cert.gmtime_adj_notBefore(0)
             signed_cert.gmtime_adj_notAfter(365 * 24 * 60 * 60)  # 1 year validity
             signed_cert.set_issuer(ca_cert.get_subject())

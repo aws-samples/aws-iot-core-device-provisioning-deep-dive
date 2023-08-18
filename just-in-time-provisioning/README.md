@@ -1,5 +1,8 @@
 ## Just in time provisioning(JITP)
 
+TODO 
+   [] Scope thing policy down 
+   [] optimize template
 ### Introduction
 In this section you will execute every step to configure AWS IoT Core for JITP, and run a simulation fleet using JITP. Note this is a strictly educational project, and the example and samples utilized here should not be implemented into projects without changes. For more information go to [Just in time provisioning documentation page](https://docs.aws.amazon.com/iot/latest/developerguide/jit-provisioning.html). 
 
@@ -37,7 +40,7 @@ AWS::IoT::Certificate::OrganizationalUnit
 AWS::IoT::Certificate::DistinguishedNameQualifier
 AWS::IoT::Certificate::StateName
 AWS::IoT::Certificate::CommonName
-AWS::IoT::Certificate::SerialNumber
+AWS::IoT::Certificate::SerialNumber (Given to the certificate by the CA, this is good candidate for the IoT:ThingName)
 AWS::IoT::Certificate::Id (**AWS managed**)
 
 **Very important!** When defining a parameter, a "Default" value can be provided in case the certificate does not contain information on the defined field. If you do not use a default value, a defined field which does not present a value will force the registration job to fail, the certificate is deemed unsafe. 
@@ -275,10 +278,13 @@ For this next step you will be creating a Simulation fleet using Docker containe
    Simply start the simulation with ENDPOINT and desire Fleet size. 
 
    ```
-   Python3 simulation.py -e <YOUR-IOT-CORE-ATS_ENDPOINT> -n <NUMBER-OF-DESIRED-DEVICES>
+   Python3 simulation.py -e <YOUR-IOT-CORE-ATS_ENDPOINT> -n <NUMBER-OF-DEVICES>
    ```
 
 
-
+### Troubleshooting 
+   * Use the log files. 
+      At the time you run the simulation a **/logs** directory will be created with 3 distinct log files, docker_build.log, docker_run.log and server.log. Use those files as references when asking questions on the discussions section.
+   * Use docker log command to dig deeper into the specific container failure.  
 
 ### Next steps
