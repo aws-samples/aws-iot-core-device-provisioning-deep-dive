@@ -232,8 +232,9 @@ send_csr_to_server(csr, server_url=host, certificate_file_path=certs_path)
 #Extract the serial number from the signed certificate
 certificate_serial_number = get_serial_number_from_crt(f"{certs_path}/deviceCert.crt")
 
-#Set serial number as global environment variable
+#Set serial number as global environment variables
 set_global_environment_variable("SERIAL_NUMBER", {certificate_serial_number})
+set_global_environment_variable("ORGANIZATION", {device_cert_dn[1]})
 
 #Start MQTT connection and test script
 run_script_in_background(working_path / "iot_client_simulation.py")

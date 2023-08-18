@@ -5,8 +5,17 @@
      },
      "AWS::IoT::Certificate::CommonName": {
        "Type": "String"
-     }, "AWS::IoT::Certificate::SerialNumber": {
-      "Type": "String"
+     },
+     "AWS::IoT::Certificate::SerialNumber": {
+       "Type": "String"
+     },
+     "AWS::IoT::Certificate::DistinguishedNameQualifier": {
+       "Type": "String",
+       "Default": "unclaimed"
+     },
+     "AWS::IoT::Certificate::OrganizationalUnit": {
+       "Type": "String",
+       "Default": "unclaimed"
      },
      "AWS::IoT::Certificate::Organization": {
        "Type": "String"
@@ -17,23 +26,29 @@
        "Type": "AWS::IoT::Thing",
        "Properties": {
          "ThingName": {
-            "Ref":"AWS::IoT::Certificate::SerialNumber"
+           "Ref": "AWS::IoT::Certificate::SerialNumber"
          },
-         "AttributePayload":{
-            "hardwareVersion":{
-               "Ref": "AWS::IoT::Certificate::CommonName"
-             },
-            "serialNumber":{
-               "Ref": "AWS::IoT::Certificate::SerialNumber"
-             }
+         "AttributePayload": {
+           "version": {
+             "Ref": "AWS::IoT::Certificate::CommonName"
+           },
+           "serialNumber": {
+             "Ref": "AWS::IoT::Certificate::SerialNumber"
+           }
          },
-         "ThingTypeName":"AnyType",
-         "ThingGroups":"AnyCompany",
-         "OverrideSettings":{
-            "AttributePayload":"MERGE",
-            "ThingTypeName":"REPLACE",
-            "ThingGroups":"MERGE"
-         }
+         "ThingTypeName": {
+           "Ref": "AWS::IoT::Certificate::DistinguishedNameQualifier"
+         },
+         "ThingGroups": [
+           {
+             "Ref": "AWS::IoT::Certificate::OrganizationalUnit"
+           }
+         ]
+       },
+       "OverrideSettings": {
+         "AttributePayload": "REPLACE",
+         "ThingTypeName": "REPLACE",
+         "ThingGroups": "REPLACE"
        }
      },
      "certificate": {

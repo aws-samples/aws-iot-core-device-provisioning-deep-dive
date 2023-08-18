@@ -1,0 +1,105 @@
+2023-08-18 11:22:51,113 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 11:22:51,194 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 11:22:56,310 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 11:45:59,366 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 11:45:59,462 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 11:46:04,645 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 11:47:20,836 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 11:47:21,046 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 11:47:26,135 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 11:58:39,314 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 11:58:39,455 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 11:58:44,584 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:01:08,656 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 12:01:08,786 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:01:13,934 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:17:19,438 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 12:17:19,534 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:17:24,783 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:20:51,809 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 12:20:51,907 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:20:57,104 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:27:22,576 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 12:27:22,705 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:27:27,860 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:40:02,186 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 12:40:02,294 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:40:07,460 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:45:00,293 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 12:45:00,396 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 12:45:05,940 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:21:52,809 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 13:21:52,875 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:21:58,046 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:23:16,098 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 13:23:16,283 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:23:21,409 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:23:26,530 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:23:31,671 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:23:36,825 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:23:41,947 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:23:47,123 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:23:52,294 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:23:57,360 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:24:02,532 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'>
+2023-08-18 13:40:55,518 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 13:40:55,654 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:41:00,786 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:41:05,856 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:41:11,007 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:41:16,179 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:41:21,336 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:41:26,495 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:41:31,593 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:41:36,731 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:41:41,836 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:43:55,244 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 13:43:55,403 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:44:00,529 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:44:05,697 - ERROR - Error signing CSR: serial must be an integer
+2023-08-18 13:45:32,186 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 13:45:32,299 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 156946242750459544324739797628668105863
+2023-08-18 13:45:37,492 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 120407202384619910620254486827948822576
+2023-08-18 13:45:42,571 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 267798990314324529014547993392457974159
+2023-08-18 13:45:47,722 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 156664743012394639998026651699952000491
+2023-08-18 13:45:52,910 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 215720784317995769757524376178441662722
+2023-08-18 13:45:58,103 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 65191205107658821823618264183566438969
+2023-08-18 13:46:03,250 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 328923298679687391987647201087789976940
+2023-08-18 13:46:08,515 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 224836587502366906819359686957659818077
+2023-08-18 13:46:13,573 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 59109707468813332561288773820693977545
+2023-08-18 13:46:18,742 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 142133208908086332119866522940483637517
+2023-08-18 13:56:03,492 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 13:56:03,597 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 125705918592107221193103129813492735772
+2023-08-18 13:56:08,784 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 239302904457561376336610156351712216143
+2023-08-18 13:57:26,004 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 13:57:26,140 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 222427837483141525071922385209150535654
+2023-08-18 13:57:31,308 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 156450032038963045867083487962738231719
+2023-08-18 13:57:36,399 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 184439703510317557004044927486043226005
+2023-08-18 13:57:41,632 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 34315252513072672669367580231465264355
+2023-08-18 13:57:46,729 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 29170788342461827909403038595182967867
+2023-08-18 13:57:51,889 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 338832819379702014336483670543534472249
+2023-08-18 13:57:57,014 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 52171761923630373753594880275053323301
+2023-08-18 13:58:02,206 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 49442285369466937905306402299702298070
+2023-08-18 13:58:07,350 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 146305570804096992813780868334060695526
+2023-08-18 13:58:12,506 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 19552727252554483662469886418768290051
+2023-08-18 14:02:53,808 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 14:02:53,901 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 334815322532575417003119182202333850834
+2023-08-18 14:02:59,053 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 298254720892189138518161420645465418272
+2023-08-18 14:03:04,202 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 200330973378795393471793076200556021299
+2023-08-18 14:03:09,312 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 329178099722326023118358303290645617999
+2023-08-18 14:03:14,451 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 27500071113176637385825290569932188826
+2023-08-18 14:03:19,592 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 208390222748987391813966172160047352140
+2023-08-18 14:03:24,728 - INFO - Certificate for <X509Name object '/CN=HW-200/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 331066514646227362933215614763555843984
+2023-08-18 14:03:29,893 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 73023260405405111159580880103608596718
+2023-08-18 14:03:35,032 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 254861991533679138085846841852588670872
+2023-08-18 14:03:40,231 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 199805268855186163806427514221418089702
+2023-08-18 14:10:37,367 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 14:10:37,512 - INFO - Certificate for <X509Name object '/CN=HW-103/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 215283702780883667021882249033466109746
+2023-08-18 14:13:33,101 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 14:13:33,235 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 340156569131214437543216520477094663600
+2023-08-18 14:28:05,732 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 14:28:05,843 - INFO - Certificate for <X509Name object '/CN=HW-204/O=AnyCompany/OU=Prod/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 314153773413287577937769692998448131135
+2023-08-18 14:35:44,096 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 14:35:44,233 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/OU=Dev/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 272486532220558998412793316703542709676
+2023-08-18 14:59:40,913 - INFO - Server started at http://0.0.0.0:8080
+2023-08-18 14:59:40,980 - INFO - Certificate for <X509Name object '/CN=HW-100/O=AnyCompany/dnQualifier=AnyType'> signed by <X509Name object '/C=US/ST=CO/L=Denver/O=AnyCompany/OU=All/CN=IoT Devices Root CA'> with serial number 160721294084933156410399969259272083334

@@ -67,18 +67,21 @@ class CSRHandler(http.server.BaseHTTPRequestHandler):
             csr = crypto.load_certificate_request(crypto.FILETYPE_PEM, csr_data)
             csr_subject = csr.get_subject()
 
+            #Generate Serial number for the certificate
+            serial_number = uuid.uuid4().int
+
             # Create a new certificate
             signed_cert = crypto.X509()
             signed_cert.set_subject(csr_subject)
             signed_cert.set_pubkey(csr.get_pubkey())
-            signed_cert.set_serial_number(uuid.uuid4().int)  # Generate a UUID-based serial number)
+            signed_cert.set_serial_number(serial_number)  
             signed_cert.gmtime_adj_notBefore(0)
             signed_cert.gmtime_adj_notAfter(365 * 24 * 60 * 60)  # 1 year validity
             signed_cert.set_issuer(ca_cert.get_subject())
             signed_cert.sign(ca_key, "sha256")
 
             # Log the certificate signing operation
-            logging.info(f"Certificate for {csr_subject} signed by {ca_cert.get_subject()}")
+            logging.info(f"Certificate for {csr_subject} signed by {ca_cert.get_subject()} with serial number {serial_number}")
 
             # Return the signed certificate
             return crypto.dump_certificate(crypto.FILETYPE_PEM, signed_cert).decode('utf-8')

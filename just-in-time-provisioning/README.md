@@ -1,9 +1,5 @@
 ## Just in time provisioning(JITP)
 
-TODO 
-   [] Scope thing policy down 
-   [] optimize template
-   [] update git ignore to clean the keys and certs
 ### Introduction
 In this section you will execute every step to configure AWS IoT Core for JITP, and run a simulation fleet using JITP. Note this is a strictly educational project, and the example and samples utilized here should not be implemented into projects without changes. For more information go to [Just in time provisioning documentation page](https://docs.aws.amazon.com/iot/latest/developerguide/jit-provisioning.html). 
 
@@ -12,7 +8,7 @@ Just in time provisioning has a dependency on using a private certificate author
 
 The flow diagram below explains each action that happens in a JITP provisioning flow, note that some of those are not part of the flow itself, but actions that have to be done by a security administrator and manufacturing prior to the first connection. 
 
-![JITP flow](images/jitp-flow.png)
+![JITP flow](/images/jitp-flow.png)
 
 
 ### Pre-requisites 
@@ -32,21 +28,22 @@ cd /aws-iot-core-device-provisioning/just-in-time-registration
 **This will be your work directory from this point**
 
 ### Understanding the provisioning template
-Provisioning templates, are JSON documents used by the JITP service in order to customize how your IoT things will be provisioned and registered. Actions such as creating a thing, adding a thing to a group and attach a policy are examples of action executed accordingly to the template. Read the [provisioning templates](https://docs.aws.amazon.com/iot/latest/developerguide/provision-template.html) section on the documentation page. 
+Provisioning templates, are JSON documents used by the JITP service in order to customize how your IoT things will be provisioned and registered. Actions such as creating a thing, adding a thing to a group and attach a policy are examples of action executed accordingly to the template. Read the [provisioning templates](https://docs.aws.amazon.com/iot/latest/developerguide/provision-template.html) section on the documentation page to learn more. 
 
 For this test you will start with the example below. The provisioning template is the start point when developing for JITP, what you define in the template will influence how your authorization and cloud infrastructure needs to be setup. In this example the **Parameters** are being extracted from the device certificate itself. When you sign a device certificate you can add fields such as CommonName, Company, country etc. Those parameters will be used to register you IoT thing, AWS IoT defines the following:
+
 AWS::IoT::Certificate::Country
 AWS::IoT::Certificate::Organization
 AWS::IoT::Certificate::OrganizationalUnit
 AWS::IoT::Certificate::DistinguishedNameQualifier
 AWS::IoT::Certificate::StateName
 AWS::IoT::Certificate::CommonName
-AWS::IoT::Certificate::SerialNumber (Given to the certificate by the CA, this is good candidate for the IoT:ThingName)
+AWS::IoT::Certificate::SerialNumber (Given to the certificate by the CA, this is good candidate for the IoT:ThingName or Thing.Attribute)
 AWS::IoT::Certificate::Id (**AWS managed**)
 
-**Very important!** When defining a parameter, a "Default" value can be provided in case the certificate does not contain information on the defined field. If you do not use a default value, a defined field which does not present a value will force the registration job to fail, the certificate is deemed unsafe. 
+**Very important!** When defining a parameter, a "Default" value can be provided in case the certificate does not contain information on the defined field. If you do not use a default value, the defined field which does not receive a value from the certificate will force the registration job to fail, the certificate is deemed unsafe. 
 
-In the **Resources** segment we define how and where the parameters are used. Finally, you define the certificate to be registered and the policy what will be attached to it. 
+In the **Resources** segment we define how and where the parameters are used. Finally, you define the certificate to be registered and the policy which will be attached to it. 
 Provisioning templates can solve many cases, be sure to explore the documentation page for more examples. 
 
 ```json
@@ -118,7 +115,9 @@ Provisioning templates can solve many cases, be sure to explore the documentatio
 The provisioning template above has already been created and added to the directory, **jitp-provisiong-template.json**. Feel free to make changes, but be aware the next steps will work with the Provisioning template. 
 
 ### Creating types and groups
-You may have noticed that the provisioning template tries to add Things to Types and Groups, If those groups are not already pre created the template will fail. So let's create a few you can work with. Execute the commands below. 
+You may have noticed that the provisioning template tries to add Things to Types and Groups you will create a few you can work with. If those groups and types are not already pre created the template will attempt to create them, but keep in mind that will influence how you build the Provisioning Template service policy.
+
+Run the commands below:
 
 For the thing type.
 ```
@@ -130,7 +129,7 @@ For the Groups, create a Parent group.
 aws iot create-thing-group --thing-group-name AnyCompany
 ```
 
-Then create three groups and add them as child groups of the Parent group.
+Then create three groups and add them as child groups of AnyCompany.
 ```
 aws iot create-thing-group --thing-group-name Dev --parent-group-name AnyCompany
 aws iot create-thing-group --thing-group-name Prod --parent-group-name AnyCompany
@@ -143,31 +142,37 @@ In the demonstration policy below you will scope a policy with the least privile
 
 ```json
 {
-	"Version": "2012-10-17",
-	"Statement": [
-		{
-			"Effect": "Allow",
-			"Action": [
-				"iot:Connect"
-			],
-			"Resource": [
-				"arn:aws:iot:<REGION>:<ACCOUNT_ID>:client/${iot:Connection.Thing.ThingName}"
-			],
-			"Condition": {
-				"Bool": {
-					"iot:Connection.Thing.IsAttached": "true"
-				}
-			}
-		},
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Condition": {
+        "Bool": {
+          "iot:Connection.Thing.IsAttached": "true"
+        }
+      },
+      "Effect": "Allow",
+      "Action": "iot:Connect",
+      "Resource": "arn:aws:iot:<YOUR_REGION>:<YOUR-ACCOUNT-ID>:client/${iot:Connection.Thing.ThingName}"
+    },
     {
       "Effect": "Allow",
-      "Action": ["iot:Publish", "iot:Subscribe"],
-      "Resource": ["arn:aws:iot:<REGION>:<ACCOUNT_ID>:topic/AnyCompany${iot:Connection.Thing.ThingName}"]
+      "Action": "iot:Publish",
+      "Resource": "arn:aws:iot:<YOUR_REGION>:<YOUR-ACCOUNT-ID>:topic/AnyCompany/${iot:Connection.Thing.ThingName}/telemetry"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Subscribe",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Receive",
+      "Resource": "*"
     }
   ]
 }
 ```
-**The AnyTypeThing_policy_document.json** has already been created in this directory, Please modify where you see < >.
+The **AnyTypeThing_policy_document.json** has already been created in this directory, Please modify where you see < >.
 
 Then run the command below: 
 ```
@@ -175,7 +180,7 @@ aws iot create-policy --policy-name AnyTypeThing-policy --policy-document file:/
 ```
 
  ### Creating the JITP provisioning role
- This role is assumed by AWS IoT Core task running your provisioning template. The minimum trust and permissions for the role will vary depending on your provisioning template, example if your provisioning does not include adding thing to a Billing group, you don't need the **"iot:AddThingToBillingGroup"** action. To facilitate the scoping of a correct policy, AWS provides a managed [policy for Thing Registration](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AWSIoTThingsRegistration.html), we recommend you start from that one a trim it to the least needed privileges for your provisioning method. 
+ This role is assumed by the AWS IoT Core task running your provisioning template. The minimum trust and permissions for the role will vary depending on your provisioning template, example if your provisioning does not include adding thing to a Billing group, you don't need the **"iot:AddThingToBillingGroup"** action. To facilitate the scoping of a correct policy, AWS provides a managed [policy for Thing Registration](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AWSIoTThingsRegistration.html), we recommend you start from that one and trim it to the least needed privileges for your provisioning method. 
 
 For this educational project you can just execute the commands below as is:
 
@@ -193,44 +198,43 @@ For this educational project you can just execute the commands below as is:
     ```
 
 ### Creating the provisioning template.
-Now that you have all resource in place and understand the template, you can execute the command below to create it. 
+Now that you have all resource in place and understand the template, you can execute the command below to create the template. 
+   **Note**: If you did not save the Role ARN, got to IAM -> Roles, search for iot-core-provisionign-role, select and copy the ARN.
 
-    Note, if you did not save the Role ARN, got to IAM -> Roles, search for iot-core-provisionign-role, select and copy the ARN. 
+     
     ```
     aws iot create-provisioning-template \
         --template-name jitp-provisioning-template \
         --enabled \
         --type JITP \
-        --provisioning-role-arn arn:aws:iam::404125507795:role/iot-core-provisioning-role \
+        --provisioning-role-arn arn:aws:iam::<YOUR-ACCOUNT-ID>:role/iot-core-provisioning-role \
         --template-body file://jitp_provisioning_template.json 
     ```
 
  Any update to the provisioning template can be done using [update-provisioning-template](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/iot/update-provisioning-template.html) or [create-provisioning-template](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/iot/create-provisioning-template-version.html), in case you like to keep track of versions.
 
 ### Registering a Private CA 
- Next is to register the Private CA authority which will be used to invoke a registration by the template. OpenSSL is required for the following steps, make sure you have installed and configured.Note: all the OpenSSL commands used in this project are for educational purposes only, make sure you understand your use case, and have done the necessary work to select the correct signing algorithm. 
+ Next is registering the Private CA authority which will be used to invoke a registration by the template. OpenSSL is required for the following steps, make sure you have installed and configured. **Note**: all the OpenSSL commands used in this project are for educational purposes only, make sure you understand your use case, and have done the necessary work to select the correct signing algorithm. 
 
-* Create a certificate to be used as Private CA by running the following OpenSSL commands, note that you will be using the **rootCA_openssl.conf**, that makes sure your CA is adhering to the minimal requirements. 
+* **Create a certificate to be used as Private CA** by running the following OpenSSL commands, note that you will be using the **rootCA_openssl.conf** which makes sure your CA is adhering to the minimal requirements. 
 
     ```    
     openssl genrsa -out rootCA.key 2048
 
     openssl req -new -sha256 -key rootCA.key -nodes -out rootCA.csr -config rootCA_openssl.conf
 
-    ```
-    ```
     openssl x509 -req -days 3650 -extfile rootCA_openssl.conf -extensions v3_ca -in rootCA.csr -signkey rootCA.key -out rootCA.pem
     ```
-    Fill the signing form. Feel free to use any value you like, but fill all field, as the Certificate DN as a way to identify Certificates. An example below: 
-   -----
-   Country Name []:US
-   State []:CO
-   City []:Denver
-   Organization []:AnyCompany
-   Organization Unit []:All
-   Common Name []:IoT Devices Root CA
+**Fill the signing form**. Feel free to use any value you like, but fill all fields, as the Certificate DN is a way to identify Certificates. An example below: 
 
-* Create verification code certificate.The verificationCert.pem file we get from this step will be used when we register the CA certificate. This is necessary step which protects the registration, the service or user registering must be able to acquire a verification code. 
+   Country Name [ ]:**US**
+   State [ ]:**CO**
+   City [ ]:**Denver**
+   Organization [ ]:**AnyCompany**
+   Organization Unit [ ]:**All**
+   Common Name [ ]:**IoT Devices Root CA**
+
+* **Create verification code certificate**.The verificationCert.pem file we get from this step will be used when we register the CA certificate. This is necessary step which protects the registration, the service or user registering must be able to acquire a verification code. 
     
     Execute the following commands
 
@@ -244,7 +248,7 @@ Now that you have all resource in place and understand the template, you can exe
     openssl req -new -key verificationCert.key -out verificationCert.csr 
     ```
 
-    Now you need to set the Common Name field of the certificate with the registration code:
+    Save the registration code, and now you need to set the Common Name field of the certificate with the registration code:
 
     **Common Name (e.g. server FQDN or YOUR name) []: XXXXXXXREGISTRATION-CODEXXXXXXX**
 
@@ -252,7 +256,7 @@ Now that you have all resource in place and understand the template, you can exe
     openssl x509 -req -in verificationCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out verificationCert.pem -days 500 -sha256
     ```
 
-* Register the CA certificate.
+* **Register the CA certificate**
 This is the final step of the registration, there are a few modes in which a CA can be registered, to understand that better please read [Manage your CA certificates](https://docs.aws.amazon.com/iot/latest/developerguide/manage-your-CA-certs.html).
 In the example below we are registering for a single account, active and with auto-registration on. The auto-registration will invoke the provisioning template.
 
@@ -273,8 +277,7 @@ For this next step you will be creating a Simulation fleet using Docker containe
    *  As the containers start, they will self generate unique Certificate Keys, and request the signing_service.py for a CA signature. **Note:**This is an educational example of how certificates can be signed on a secure and completely isolated network, do not replicate this method without proper understanding of manufacturing with x509 certificates. 
    *  With a signed certificate each container will connect to AWS IoT Core and start the JITP flow, they will then successfully connect and publish messages.
 
-
-         ### PLACEHOLDER - DIAGRAM
+![JITP simulation flow](/images/deep-dive-jitp.png)
 
    Simply start the simulation with ENDPOINT and desire Fleet size. 
 
