@@ -1,0 +1,23 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+	  {
+		"Condition": {
+		  "Bool": {
+			"iot:Connection.Thing.IsAttached": "true"
+		  }
+		},
+		"Effect": "Allow",
+		"Action": "iot:Connect",
+		"Resource": "arn:aws:iot:us-west-2:404125507795:client/${iot:Connection.Thing.ThingName}"
+	  },
+	  {
+		"Effect": "Allow",
+		"Action": [
+		  "iot:Publish",
+		  "iot:Subscribe"
+		],
+		"Resource": "*"
+	  }
+	]
+  }
