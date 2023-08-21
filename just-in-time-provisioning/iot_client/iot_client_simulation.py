@@ -30,6 +30,7 @@ import subprocess
 import time
 import os
 
+#Define function to create logs 
 def run_command_with_logging(command, log_file_path):
     while True:
         try:
@@ -43,11 +44,13 @@ def run_command_with_logging(command, log_file_path):
                 log_file.write("Restarting in 5 seconds...\n")
             time.sleep(5)
 
+#Defines main function to run the MQTT client
 def run_command():
-    endpoint = os.environ.get("IOT_ENDPOINT")
-    client_id = os.environ.get("SERIAL_NUMBER")
-    organization = os.environ.get("ORGANIZATION")
-    topic = f"/{organization}/{client_id}/telemetry"
+    endpoint = (os.environ.get("IOT_ENDPOINT"))
+    client_id = (os.environ.get("SERIAL_NUMBER"))
+    organization = (os.environ.get("ORGANIZATION"))
+    topic = f"{organization}/{client_id}/telemetry"
+    print(topic)
 
     if not endpoint or not client_id or not topic:
         print("Missing environment variables. Please set IOT_ENDPOINT, SERIAL_NUMBER, or ORGANIZATION")
