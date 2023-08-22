@@ -242,22 +242,22 @@ Now that you have all resource in place and understand the template, you can exe
 * **Fill the signing form**. 
    Feel free to use any value you like, but fill all fields, as the Certificate DN is a way to identify Certificates. An example below: 
 
-      Country Name [ ]:**US**
+   Country Name [ ]:**US**
 
-      State [ ]:**CO**
-      
-      City [ ]:**Denver**
-      
-      Organization [ ]:**AnyCompany**
-      
-      Organization Unit [ ]:**All**
-      
-      Common Name [ ]:**IoT Devices Root CA**
+   State [ ]:**CO**
+   
+   City [ ]:**Denver**
+   
+   Organization [ ]:**AnyCompany**
+   
+   Organization Unit [ ]:**All**
+   
+   Common Name [ ]:**IoT Devices Root CA**
 
 * **Create verification code certificate**.
    The verificationCert.pem file we get from this step will be used when we register the CA certificate. This is necessary step which protects the registration, the service or user registering must be able to acquire a verification code. 
          
-         Execute the following commands
+      Execute the following commands
 
          ```
          aws iot get-registration-code
