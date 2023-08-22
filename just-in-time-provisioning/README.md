@@ -229,55 +229,63 @@ Now that you have all resource in place and understand the template, you can exe
 ### Registering a Private CA 
  Next is registering the Private CA authority which will be used to invoke a registration by the template. OpenSSL is required for the following steps, make sure you have installed and configured. **Note**: all the OpenSSL commands used in this project are for educational purposes only, make sure you understand your use case, and have done the necessary work to select the correct signing algorithm. 
 
-* **Create a certificate to be used as Private CA** by running the following OpenSSL commands, note that you will be using the **rootCA_openssl.conf** which makes sure your CA is adhering to the minimal requirements. 
+* **Create a certificate to be used as Private CA** 
+   Run the following OpenSSL commands, note that you will be using the **rootCA_openssl.conf** which makes sure your CA is adhering to the minimal requirements. 
 
-    ```    
-    openssl genrsa -out rootCA.key 2048
+      ```    
+      openssl genrsa -out rootCA.key 2048
 
-    openssl req -new -sha256 -key rootCA.key -nodes -out rootCA.csr -config rootCA_openssl.conf
+      openssl req -new -sha256 -key rootCA.key -nodes -out rootCA.csr -config rootCA_openssl.conf
 
-    openssl x509 -req -days 3650 -extfile rootCA_openssl.conf -extensions v3_ca -in rootCA.csr -signkey rootCA.key -out rootCA.pem
-    ```
-**Fill the signing form**. Feel free to use any value you like, but fill all fields, as the Certificate DN is a way to identify Certificates. An example below: 
+      openssl x509 -req -days 3650 -extfile rootCA_openssl.conf -extensions v3_ca -in rootCA.csr -signkey rootCA.key -out rootCA.pem
+      ```
+* **Fill the signing form**. 
+   Feel free to use any value you like, but fill all fields, as the Certificate DN is a way to identify Certificates. An example below: 
 
-   Country Name [ ]:**US**
-   State [ ]:**CO**
-   City [ ]:**Denver**
-   Organization [ ]:**AnyCompany**
-   Organization Unit [ ]:**All**
-   Common Name [ ]:**IoT Devices Root CA**
+      Country Name [ ]:**US**
 
-* **Create verification code certificate**.The verificationCert.pem file we get from this step will be used when we register the CA certificate. This is necessary step which protects the registration, the service or user registering must be able to acquire a verification code. 
-    
-    Execute the following commands
+      State [ ]:**CO**
+      
+      City [ ]:**Denver**
+      
+      Organization [ ]:**AnyCompany**
+      
+      Organization Unit [ ]:**All**
+      
+      Common Name [ ]:**IoT Devices Root CA**
 
-    ```
-    aws iot get-registration-code
-    ```
-    Save this code for the next step
-    ```
-    openssl genrsa -out verificationCert.key 2048
+* **Create verification code certificate**.
+   The verificationCert.pem file we get from this step will be used when we register the CA certificate. This is necessary step which protects the registration, the service or user registering must be able to acquire a verification code. 
+         
+         Execute the following commands
 
-    openssl req -new -key verificationCert.key -out verificationCert.csr 
-    ```
+         ```
+         aws iot get-registration-code
+         ```
+         Save this code for the next step
+         ```
+         openssl genrsa -out verificationCert.key 2048
 
-    Save the registration code, and now you need to set the Common Name field of the certificate with the registration code:
+         openssl req -new -key verificationCert.key -out verificationCert.csr 
+         ```
 
-    **Common Name (e.g. server FQDN or YOUR name) []: XXXXXXXREGISTRATION-CODEXXXXXXX**
+         Save the registration code, and now you need to set the Common Name field of the certificate with the registration code:
 
-    ```
-    openssl x509 -req -in verificationCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out verificationCert.pem -days 500 -sha256
-    ```
+         **Common Name (e.g. server FQDN or YOUR name) []: XXXXXXXREGISTRATION-CODEXXXXXXX**
+
+         ```
+         openssl x509 -req -in verificationCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out verificationCert.pem -days 500 -sha256
+         ```
 
 * **Register the CA certificate**
-This is the final step of the registration, there are a few modes in which a CA can be registered, to understand that better please read [Manage your CA certificates](https://docs.aws.amazon.com/iot/latest/developerguide/manage-your-CA-certs.html).
-In the example below we are registering for a single account, active and with auto-registration on. The auto-registration will invoke the provisioning template.
+   This is the final step of the registration, there are a few modes in which a CA can be registered, to understand that better please read [Manage your CA certificates](https://docs.aws.amazon.com/iot/latest/developerguide/manage-your-CA-certs.html).
+   In the example below we are registering for a single account, active and with auto-registration on. The auto-registration will invoke the provisioning template.
 
-    ```
-    aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration --registration-config templateName=jitp-provisioning-template
-    ```
+      ```
+      aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration --registration-config templateName=jitp-provisioning-template
+      ```
 
-### Testing the provisioning template and deploying a fleet 
+### Testing the provisioning template and deploying a simulation fleet 
 
 For this next step you will be creating a Simulation fleet using Docker containers that simulate an IoT client device, using the [AWS IoT V2 SDK for Python](https://github.com/aws/aws-iot-device-sdk-python-v2).
 
