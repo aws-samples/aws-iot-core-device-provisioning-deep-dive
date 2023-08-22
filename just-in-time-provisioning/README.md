@@ -84,22 +84,30 @@ Provisioning templates can solve many cases, be sure to explore the documentatio
           "Ref": "AWS::IoT::Certificate::SerialNumber"
         },
         "AttributePayload": {
-          "version": {
+          "hardwareVersion": {
             "Ref": "AWS::IoT::Certificate::CommonName"
           },
           "serialNumber": {
             "Ref": "AWS::IoT::Certificate::SerialNumber"
           },
-          "provisioning": "JITP"
+          "provisioning": "JITP",
+          "softwareVersion": "SW-100",
+          "CA": "IoT-Device-RootCA"
         },
         "ThingTypeName": {
           "Ref": "AWS::IoT::Certificate::DistinguishedNameQualifier"
         },
         "ThingGroups": [
           {
+            "Ref": "AWS::IoT::Certificate::Organization"
+          },
+          {
             "Ref": "AWS::IoT::Certificate::OrganizationalUnit"
           }
-        ]
+        ],
+        "BillingGroup": {
+          "Ref": "AWS::IoT::Certificate::Organization"
+        }
       },
       "OverrideSettings": {
         "AttributePayload": "REPLACE",
@@ -127,8 +135,8 @@ Provisioning templates can solve many cases, be sure to explore the documentatio
 ```
 The provisioning template above has already been created and added to the directory, **jitp-provisiong-template.json**. Feel free to make changes, but be aware the next steps will work with the Provisioning template. 
 
-### Creating types and groups
-You may have noticed that the provisioning template tries to add Things to Types and Groups you will create a few you can work with. If those groups and types are not already pre created the template will attempt to create them, but keep in mind that will influence how you build the Provisioning Template service policy.
+### Creating types, groups and billing groups. 
+You may have noticed that the provisioning template tries to add Things to Types and Groups, you will create a few you can work with. If those groups and types are not already pre created the template will attempt to create them, but keep in mind that will influence how you build the Provisioning Template itself and service policy(**Billing Groups must be pre provisioned**).
 
 Run the commands below:
 
@@ -148,7 +156,10 @@ aws iot create-thing-group --thing-group-name Dev --parent-group-name AnyCompany
 aws iot create-thing-group --thing-group-name Prod --parent-group-name AnyCompany
 aws iot create-thing-group --thing-group-name unclaimed --parent-group-name AnyCompany
 ```
-
+Finally, create the billing group.
+```
+aws iot create-billing-group --billing-group-name AnyCompany
+```
 ### Defining the IoT policy for provisioned devices
 There are many strategies to accomplish best practices when creating IoT policies to be use by fleets of devices. Similar to an IAM policy, IoT policies also support policy variables, and that very efficient way to scale securely. 
 In the demonstration policy below you will scope a policy with the least privileges for this educational project. 
@@ -256,7 +267,7 @@ Now that you have all resource in place and understand the template, you can exe
 
 * **Create verification code certificate**.
    The verificationCert.pem file we get from this step will be used when we register the CA certificate. This is necessary step which protects the registration, the service or user registering must be able to acquire a verification code. 
-   Execute the following commands
+   Execute the following commands:
 
          ```
          aws iot get-registration-code
@@ -314,12 +325,12 @@ For this next step you will be creating a Simulation fleet using Docker containe
    * All provisioning action are tracked by AWS Cloudtrail, if any error with the provisioning template occur, you be able to identify it by looking for the iot-provisioning identification on the event.  
 
 ### Next steps
-I recommend you explore calls with AWS [IoT Device management - fleet indexing](https://docs.aws.amazon.com/iot/latest/developerguide/iot-indexing.html), using Fleet indexing will allow you to filter device by Groups, Hardware version etc. 
+I recommend you explore calls with [AWS IoT Device management - fleet indexing](https://docs.aws.amazon.com/iot/latest/developerguide/iot-indexing.html), using Fleet indexing will allow you to filter device by Groups, Hardware version etc. 
 
 ### Cleaning up
    * Delete all create things.
    * Delete all registered certificates. 
    * Delete the Provisioning template.
    * Delete the thing policy.
-   * Terminate any Ec2 / Cloud9 Instances that you created for the walkthrough.
+   * Terminate any EC2 / Cloud9 Instances that you created for the walkthrough.
   

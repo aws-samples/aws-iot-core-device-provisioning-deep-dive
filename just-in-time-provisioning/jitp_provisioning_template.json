@@ -28,22 +28,30 @@
           "Ref": "AWS::IoT::Certificate::SerialNumber"
         },
         "AttributePayload": {
-          "version": {
+          "hardwareVersion": {
             "Ref": "AWS::IoT::Certificate::CommonName"
           },
           "serialNumber": {
             "Ref": "AWS::IoT::Certificate::SerialNumber"
           },
-          "provisioning": "JITP"
+          "provisioning": "JITP",
+          "softwareVersion": "SW-100",
+          "CA": "IoT-Device-RootCA"
         },
         "ThingTypeName": {
           "Ref": "AWS::IoT::Certificate::DistinguishedNameQualifier"
         },
         "ThingGroups": [
           {
+            "Ref": "AWS::IoT::Certificate::Organization"
+          },
+          {
             "Ref": "AWS::IoT::Certificate::OrganizationalUnit"
           }
-        ]
+        ],
+        "BillingGroup": {
+          "Ref": "AWS::IoT::Certificate::Organization"
+        }
       },
       "OverrideSettings": {
         "AttributePayload": "REPLACE",
