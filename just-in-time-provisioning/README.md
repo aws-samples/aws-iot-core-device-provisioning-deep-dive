@@ -256,8 +256,7 @@ Now that you have all resource in place and understand the template, you can exe
 
 * **Create verification code certificate**.
    The verificationCert.pem file we get from this step will be used when we register the CA certificate. This is necessary step which protects the registration, the service or user registering must be able to acquire a verification code. 
-         
-      Execute the following commands
+   Execute the following commands
 
          ```
          aws iot get-registration-code
