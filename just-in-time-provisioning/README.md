@@ -33,12 +33,19 @@ Provisioning templates, are JSON documents used by the JITP service in order to 
 For this test you will start with the example below. The provisioning template is the start point when developing for JITP, what you define in the template will influence how your authorization and cloud infrastructure needs to be setup. In this example the **Parameters** are being extracted from the device certificate itself. When you sign a device certificate you can add fields such as CommonName, Company, country etc. Those parameters will be used to register you IoT thing, AWS IoT defines the following:
 
 AWS::IoT::Certificate::Country
+
 AWS::IoT::Certificate::Organization
+
 AWS::IoT::Certificate::OrganizationalUnit
+
 AWS::IoT::Certificate::DistinguishedNameQualifier
+
 AWS::IoT::Certificate::StateName
+
 AWS::IoT::Certificate::CommonName
+
 AWS::IoT::Certificate::SerialNumber (Given to the certificate by the CA, this is good candidate for the IoT:ThingName or Thing.Attribute)
+
 AWS::IoT::Certificate::Id (**AWS managed**)
 
 **Very important!** When defining a parameter, a "Default" value can be provided in case the certificate does not contain information on the defined field. If you do not use a default value, the defined field which does not receive a value from the certificate will force the registration job to fail, the certificate is deemed unsafe. 
@@ -48,69 +55,75 @@ Provisioning templates can solve many cases, be sure to explore the documentatio
 
 ```json
 {
-    "Parameters":{
-       "AWS::IoT::Certificate::CommonName":{
-          "Type":"String"
-       },
-       "AWS::IoT::Certificate::Organization":{
-          "Type":"String"
-       },
-       "AWS::IoT::Certificate::SerialNumber":{
-          "Type":"String"
-       },
-       "AWS::IoT::Certificate::DistinguishedNameQualifier":{
-          "Type":"String"
-       },
-       "AWS::IoT::Certificate::OrganizationalUnit":{
-          "Type":"String",
-          "Default":"unclaimed"
-       }
+  "Parameters": {
+    "AWS::IoT::Certificate::Id": {
+      "Type": "String"
     },
-    "Resources":{
-       "thing":{
-          "Type":"AWS::IoT::Thing",
-          "Properties":{
-             "ThingName":{
-                "Ref":"AWS::IoT::Certificate::SerialNumber"
-             },
-             "AttributePayload":{
-                "HW_SW_version":{
-                   "Ref":"AWS::IoT::Certificate::DistinguishedNameQualifier"
-                }
-             },
-             "ThingTypeName":{"REF":"AWS::IoT::Certificate::CommonName"},
-             "ThingGroups":[
-                {
-                   "Ref":"AWS::IoT::Certificate::Organization"
-                },
-                {
-                   "Ref":"AWS::IoT::Certificate::OrganizationalUnit"
-                }
-             ]
-          },
-          "OverrideSettings":{
-             "AttributePayload":"MERGE",
-             "ThingTypeName":"REPLACE",
-             "ThingGroups":"DO_NOTHING"
-          }
-       },
-       "certificate":{
-          "Type":"AWS::IoT::Certificate",
-          "Properties":{
-             "CertificateId":{
-                "Ref":"AWS::IoT::Certificate::Id"
-             },
-             "Status":"ACTIVE"
-          }
-       },
-       "policy":{
-          "Type":"AWS::IoT::Policy",
-          "Properties":{
-             "PolicyDocument":"AnyTypeThing-policy"
-          }
-       }
+    "AWS::IoT::Certificate::CommonName": {
+      "Type": "String"
+    },
+    "AWS::IoT::Certificate::SerialNumber": {
+      "Type": "String"
+    },
+    "AWS::IoT::Certificate::DistinguishedNameQualifier": {
+      "Type": "String"
+    },
+    "AWS::IoT::Certificate::OrganizationalUnit": {
+      "Type": "String",
+      "Default": "unclaimed"
+    },
+    "AWS::IoT::Certificate::Organization": {
+      "Type": "String"
     }
- }
+  },
+  "Resources": {
+    "thing": {
+      "Type": "AWS::IoT::Thing",
+      "Properties": {
+        "ThingName": {
+          "Ref": "AWS::IoT::Certificate::SerialNumber"
+        },
+        "AttributePayload": {
+          "version": {
+            "Ref": "AWS::IoT::Certificate::CommonName"
+          },
+          "serialNumber": {
+            "Ref": "AWS::IoT::Certificate::SerialNumber"
+          },
+          "provisioning": "JITP"
+        },
+        "ThingTypeName": {
+          "Ref": "AWS::IoT::Certificate::DistinguishedNameQualifier"
+        },
+        "ThingGroups": [
+          {
+            "Ref": "AWS::IoT::Certificate::OrganizationalUnit"
+          }
+        ]
+      },
+      "OverrideSettings": {
+        "AttributePayload": "REPLACE",
+        "ThingTypeName": "REPLACE",
+        "ThingGroups": "REPLACE"
+      }
+    },
+    "certificate": {
+      "Type": "AWS::IoT::Certificate",
+      "Properties": {
+        "CertificateId": {
+          "Ref": "AWS::IoT::Certificate::Id"
+        },
+        "Status": "ACTIVE"
+      }
+    },
+    "policy": {
+      "Type": "AWS::IoT::Policy",
+      "Properties": {
+        "PolicyName": "AnyTypeThing-policy"
+      }
+    }
+  }
+}
 ```
 The provisioning template above has already been created and added to the directory, **jitp-provisiong-template.json**. Feel free to make changes, but be aware the next steps will work with the Provisioning template. 
 
@@ -142,35 +155,35 @@ In the demonstration policy below you will scope a policy with the least privile
 
 ```json
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Condition": {
-        "Bool": {
-          "iot:Connection.Thing.IsAttached": "true"
-        }
-      },
-      "Effect": "Allow",
-      "Action": "iot:Connect",
-      "Resource": "arn:aws:iot:<YOUR_REGION>:<YOUR-ACCOUNT-ID>:client/${iot:Connection.Thing.ThingName}"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "iot:Publish",
-      "Resource": "arn:aws:iot:<YOUR_REGION>:<YOUR-ACCOUNT-ID>:topic/AnyCompany/${iot:Connection.Thing.ThingName}/telemetry"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "iot:Subscribe",
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "iot:Receive",
-      "Resource": "*"
-    }
-  ]
-}
+	"Version": "2012-10-17",
+	"Statement": [
+	  {
+		"Condition": {
+		  "Bool": {
+			"iot:Connection.Thing.IsAttached": "true"
+		  }
+		},
+		"Effect": "Allow",
+		"Action": "iot:Connect",
+		"Resource": "arn:aws:iot:<YOUR-REGION>:<ACCOUNT-ID>:client/${iot:Connection.Thing.ThingName}"
+	  },
+	  {
+		"Effect": "Allow",
+		"Action": "iot:Publish",
+		"Resource": "arn:aws:iot:<YOUR-REGION>:<ACCOUNT-ID>:topic/AnyCompany/${iot:Connection.Thing.ThingName}/telemetry"
+	  },
+	  {
+		"Effect": "Allow",
+		"Action": "iot:Subscribe",
+		"Resource": "arn:aws:iot:<YOUR-REGION>:<ACCOUNT-ID>:topicfilter/AnyCompany/${iot:Connection.Thing.ThingName}/telemetry"
+	  },
+	  {
+		"Effect": "Allow",
+		"Action": "iot:Receive",
+		"Resource": "arn:aws:iot:<YOUR-REGION>:<ACCOUNT-ID>:topic/AnyCompany/${iot:Connection.Thing.ThingName}/telemetry"
+	  }
+	]
+  }
 ```
 The **AnyTypeThing_policy_document.json** has already been created in this directory, Please modify where you see < >.
 
