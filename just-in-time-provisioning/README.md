@@ -271,15 +271,15 @@ For this next step you will be creating a Simulation fleet using Docker containe
    **Important** This simulation is using a simple x509 certificate and not a "chain certificate", in this use case make sure no other Private CA with the same subject name is present in IoT Core.
 
    The Diagram below describes what you are about to do.
-   * The simulation.py will build a container Image based on the present DOCKERFILE.
+   * The simulation.py will build a container Image based on the present Dockerfile.
    * The simulation will use the provided arguments (endpoint and FleetSize) to create docker containers.
    *  In the background the Signing_service.py will start.
-   *  As the containers start, they will self generate unique Certificate Keys, and request the signing_service.py for a CA signature. **Note:**This is an educational example of how certificates can be signed on a secure and completely isolated network, do not replicate this method without proper understanding of manufacturing with x509 certificates. 
-   *  With a signed certificate each container will connect to AWS IoT Core and start the JITP flow, they will then successfully connect and publish messages.
+   *  As the containers start, they will self generate unique Certificate Keys, and request the signing_service.py for a CA signature. **Note:** This is an educational example of how certificates can be signed on a secure and completely isolated network, do not replicate this method without proper understanding of manufacturing with x509 certificates. 
+   *  With a signed certificate each container will connect to AWS IoT Core and start the JITP flow, they will then successfully connect and publish messages, on the AnyCompany/serialNumber/telemetry
 
 ![deep-dive-jitp.drawio](/assets/deep-dive-jitp.drawio.png)
 
-   Simply start the simulation with ENDPOINT and desire Fleet size. 
+   Simply start the simulation with ENDPOINT and desire Fleet size (Max 20 device change at your own risk!). 
 
    ```
    Python3 simulation.py -e <YOUR-IOT-CORE-ATS_ENDPOINT> -n <NUMBER-OF-DEVICES>
@@ -290,5 +290,16 @@ For this next step you will be creating a Simulation fleet using Docker containe
    * Use the log files. 
       At the time you run the simulation a **/logs** directory will be created with 3 distinct log files, docker_build.log, docker_run.log and server.log. Use those files as references when asking questions on the discussions section.
    * Use docker log command to dig deeper into the specific container failure.  
+   * Make use of AWS Cloudwatch by turning on logs in AWS IoT Core. Go to AWS IoT Core -> Settings -> Logs -> Manage logs, Create a log role and for the Log level use Debug. 
+   * All provisioning action are tracked by AWS Cloudtrail, if any error with the provisioning template occur, you be able to identify it by looking for the iot-provisioning identification on the event.  
 
 ### Next steps
+I recommend you explore calls with AWS [IoT Device management - fleet indexing](https://docs.aws.amazon.com/iot/latest/developerguide/iot-indexing.html), using Fleet indexing will allow you to filter device by Groups, Hardware version etc. 
+
+### Cleaning up
+   * Delete all create things.
+   * Delete all registered certificates. 
+   * Delete the Provisioning template.
+   * Delete the thing policy.
+   * Terminate any Ec2 / Cloud9 Instances that you created for the walkthrough.
+  

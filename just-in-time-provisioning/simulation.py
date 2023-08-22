@@ -36,6 +36,11 @@ args = parser.parse_args()
 endpoint = args.endpoint
 number_of_devices = int(args.fleetsize)
 
+# Limitation: Check if fleet size exceeds the allowed limit (change this if you would like to go over 20, at your own risk!!!)
+MAX_FLEET_SIZE = 20
+if number_of_devices > MAX_FLEET_SIZE:
+    raise Exception(f"Max FleetSize allowed is {MAX_FLEET_SIZE} devices")
+
 #Define create logs directory function
 def create_logs_directory():
     logs_directory = "logs"
@@ -70,7 +75,7 @@ print(f"Deploying fleet of {number_of_devices} devices")
 def run_script_in_background(script_path):
     try:
         process = subprocess.Popen(["python3", script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-        print(f"Script {script_path} started in the background with PID: {process.pid}")
+        print(f"Script {script_path} starting signing service in the background with PID: {process.pid}")
         return process  # Return the process object
     except Exception as e:
         print(f"Error: {e}")
