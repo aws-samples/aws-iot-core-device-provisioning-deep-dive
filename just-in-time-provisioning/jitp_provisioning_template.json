@@ -43,9 +43,6 @@
         },
         "ThingGroups": [
           {
-            "Ref": "AWS::IoT::Certificate::Organization"
-          },
-          {
             "Ref": "AWS::IoT::Certificate::OrganizationalUnit"
           }
         ],

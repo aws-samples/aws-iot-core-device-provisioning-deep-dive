@@ -99,9 +99,6 @@ Provisioning templates can solve many cases, be sure to explore the documentatio
         },
         "ThingGroups": [
           {
-            "Ref": "AWS::IoT::Certificate::Organization"
-          },
-          {
             "Ref": "AWS::IoT::Certificate::OrganizationalUnit"
           }
         ],
@@ -136,7 +133,7 @@ Provisioning templates can solve many cases, be sure to explore the documentatio
 The provisioning template above has already been created and added to the directory, **jitp-provisiong-template.json**. Feel free to make changes, but be aware the next steps will work with the Provisioning template. 
 
 ### Creating types, groups and billing groups. 
-You may have noticed that the provisioning template tries to add Things to Types and Groups, you will create a few you can work with. If those groups and types are not already pre created the template will attempt to create them, but keep in mind that will influence how you build the Provisioning Template itself and service policy(**Billing Groups must be pre provisioned**).
+You may have noticed that the provisioning template tries to add Things to Types and Groups, you will create a few you can work with. If those groups and types are not already pre created the template will fail.
 
 Run the commands below:
 
