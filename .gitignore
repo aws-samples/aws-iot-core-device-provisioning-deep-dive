@@ -6,23 +6,23 @@ __pycache__/
 venv/
 *.cfg
 */lib
-*/bin
+*/bi
 */include
 
 # Ignore IDE-specific files
 .vscode/
 
 # Ignore CSR PEM and key files
-*.csr
-*.key
-*.pem
-*.crt
-*.slr
+.csr
+.key
+.pem
+.crt
+.slr
 
 #Ignore logs
-*.log
+.log
 */logs
 
 #Mac files
-.ds_store
+.DS_Store
 
