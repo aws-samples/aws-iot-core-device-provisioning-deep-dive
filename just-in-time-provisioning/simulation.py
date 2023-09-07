@@ -140,24 +140,31 @@ def set_environment_variable(variable_name, value):
 def run_docker_compose(command):
     try:
         # Construct the Docker Compose command
-        cmd = ['docker-compose'] + command.split()
-
-        # Run the Docker Compose command and capture the output
-        result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        stdout = result.stdout
-        stderr = result.stderr
-
         print("Docker compose building deployment....")
-        # Log the command and its output
-        logger.info(f"Docker Compose command: {' '.join(cmd)}")
-        logger.info(f"Command output (stdout):\n{stdout}")
-        logger.error(f"Command output (stderr):\n{stderr}")
+        cmd = ['docker','compose'] + command.split()
+
+        # Open a log file for writing
+        with open('docker_compose.log', 'w') as log_file:
+            log_file.write(f"Docker Compose command: {' '.join(cmd)}\n")
+
+            # Run the Docker Compose command and capture the output
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+            # Read and log the stdout and stderr in real-time
+            for line in process.stdout:
+                log_file.write(line)
+                logger.info(line.strip())
+
+            for line in process.stderr:
+                log_file.write(line)
+                logger.info(line.strip())
+
+            # Wait for the process to complete
+            process.wait()
 
     except subprocess.CalledProcessError as e:
-        print(f"Error running Docker Compose command: {e}")
         logger.error(f"Error running Docker Compose command: {e}")
     except Exception as e:
-        print(f"An error occurred: {e}")
         logger.error(f"An error occurred: {e}")
 
 #Main 
