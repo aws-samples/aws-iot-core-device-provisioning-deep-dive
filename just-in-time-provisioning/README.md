@@ -307,7 +307,7 @@ For this next step you will be creating a Simulation fleet using Docker containe
    *  As the containers start, they will self generate unique Certificate Keys, and request the signing_service.py for a CA signature. **Note:** This is an educational example of how certificates can be signed on a secure and completely isolated network, do not replicate this method without proper understanding of manufacturing with x509 certificates. 
    *  With a signed certificate each container will connect to AWS IoT Core and start the JITP flow, they will then successfully connect and publish messages, on the AnyCompany/serialNumber/telemetry
 
-![deep-dive-jitp.drawio](/assets/deep-dive-jitp.jpg)
+![deep-dive-jitp.drawio](/assets/deep-dive-jitp.png)
 
    Simply start the simulation with ENDPOINT and desire Fleet size (Max 20 device change at your own risk!). 
 
