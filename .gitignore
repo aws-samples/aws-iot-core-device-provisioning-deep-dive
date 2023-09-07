@@ -6,7 +6,7 @@ __pycache__/
 venv/
 *.cfg
 */lib
-*/bi
+*/bin
 */include
 
 # Ignore IDE-specific files
