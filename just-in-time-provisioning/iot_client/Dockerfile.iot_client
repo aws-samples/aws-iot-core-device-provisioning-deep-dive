@@ -25,7 +25,7 @@ FROM ubuntu:latest
 WORKDIR /opt/iot_client
 
 # Copy the application code
-COPY iot_client /opt/iot_client
+COPY . /opt/iot_client
 
 # Update and install dependencies
 RUN apt update -y \

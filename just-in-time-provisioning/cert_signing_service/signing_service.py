@@ -32,14 +32,17 @@ from OpenSSL import crypto
 from pathlib import Path
 import logging
 import uuid
+import os
 
 # Define working path
 working_path = Path(__file__).resolve().parent
 
-
 # Set up logging
+logs_folder = working_path / "logs"
+logs_folder.mkdir(parents=True, exist_ok=True)
+log_file_path = logs_folder / 'server.log'  # Full path to the log file
 logging.basicConfig(
-    filename='./logs/server.log',
+    filename=log_file_path,
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
@@ -60,8 +63,8 @@ class CSRHandler(http.server.BaseHTTPRequestHandler):
     def sign_csr(self, csr_data):
         try:
             # Load CA private key and certificate
-            ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(f"{working_path}/rootCA.key").read())
-            ca_cert = crypto.load_certificate(crypto.FILETYPE_PEM, open(f"{working_path}/rootCA.pem").read())
+            ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(f"{working_path}/certs/rootCA.key").read())
+            ca_cert = crypto.load_certificate(crypto.FILETYPE_PEM, open(f"{working_path}/certs/rootCA.pem").read())
 
             # Load and parse the incoming CSR
             csr = crypto.load_certificate_request(crypto.FILETYPE_PEM, csr_data)

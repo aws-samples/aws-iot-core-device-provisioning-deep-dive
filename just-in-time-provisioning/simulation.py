@@ -23,124 +23,142 @@
 #Dependencies 
 import subprocess
 import argparse
-import time
-import socket
 import os
+import logging
+import shutil
+
 
 #Pass argument into variables usin arparse Lib
-parser = argparse.ArgumentParser()
-parser.add_argument("-e", "--endpoint", action="store", required=True, dest="endpoint", help="regional AWS IoT Core AT endpoint")
-parser.add_argument("-n", "--fleetsize", action="store", required=True, dest="fleetsize", help="Numbers of device on the simulated fleet")
+try:
+    # Pass arguments into variables using argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-e", "--endpoint", action="store", required=True, dest="endpoint", help="regional AWS IoT Core AT endpoint")
+    parser.add_argument("-n", "--fleetsize", action="store", required=True, dest="fleetsize", help="Numbers of devices on the simulated fleet")
+    
+    args = parser.parse_args()
+    endpoint = args.endpoint
+    number_of_devices = int(args.fleetsize)
 
-args = parser.parse_args()
-endpoint = args.endpoint
-number_of_devices = int(args.fleetsize)
+    # Continue with your script logic here
+    print("Endpoint:", endpoint)
+    print("Number of Devices:", number_of_devices)
+    
+except argparse.ArgumentError as e:
+    print("Error:", e)
+    print("Please provide the required arguments.")
+except ValueError as e:
+    print("Error:", e)
+    print("Invalid value provided for fleetsize. Please provide a valid integer.")
+except Exception as e:
+    print("An error occurred:", e)
 
 # Limitation: Check if fleet size exceeds the allowed limit (change this if you would like to go over 20, at your own risk!!!)
 MAX_FLEET_SIZE = 20
 if number_of_devices > MAX_FLEET_SIZE:
     raise Exception(f"Max FleetSize allowed is {MAX_FLEET_SIZE} devices")
 
-#Define create logs directory function
-def create_logs_directory():
+#Define Logger
+def logger(name):
+    # Create the "logs" directory if it doesn't exist
     logs_directory = "logs"
-    
     if not os.path.exists(logs_directory):
-        try:
-            os.mkdir(logs_directory)
-            print(f"Directory '{logs_directory}' created.")
-        except Exception as e:
-            print(f"Error creating directory '{logs_directory}': {e}")
-    else:
-        print(f"Directory '{logs_directory}' already exists.")
+        os.mkdir(logs_directory)
 
+    log_file_path = os.path.join(logs_directory, "simulation.log")
 
-#Function to determine Host Ip address (Your host machine must have connectivity)
-def get_local_ip():
+    # Create a logger instance
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)  # Set the logger's default level to DEBUG
+
+    # Create a formatter
+    formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+
+    # Create a file handler
+    file_handler = logging.FileHandler(log_file_path)
+    file_handler.setLevel(logging.INFO)  # Set the file handler's level to INFO
+    file_handler.setFormatter(formatter)
+
+    # Create a console handler (for printing log messages to the console)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)  # Set the console handler's level to INFO
+    console_handler.setFormatter(formatter)
+
+    # Add the handlers to the logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    return logger
+
+#Define fuction to move rootCA to diretory
+def copy_file(source_file_path, destination_directory):
     try:
-        # Create a socket connection to a remote server
-        # This will retrieve the local IP address used for the connection
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-            s.connect(("8.8.8.8", 80))  # Connect to Google's DNS server
-            local_ip = s.getsockname()[0]
-            return local_ip
+        # Check if the source file exists
+        if not os.path.exists(source_file_path):
+            print(f"Source file '{source_file_path}' not found.")
+            return
+
+        # Get the filename from the source path
+        file_name = os.path.basename(source_file_path)
+
+        # Construct the destination path in the specified directory
+        destination_file_path = os.path.join(destination_directory, file_name)
+
+        # Copy the file to the destination directory
+        shutil.copy2(source_file_path, destination_file_path)
+
+        print(f"File '{file_name}' copied to '{destination_file_path}'.")
+        logger.info(f"File '{file_name}' copied to '{destination_file_path}'.")
     except Exception as e:
-        print(f"Error: {e}")
-        return None
-    
+        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}") 
+
+#Define create ENV variables
+def set_environment_variable(variable_name, value):
+    try:
+        os.environ[variable_name] = value
+        print(f"Set environment variable {variable_name} to {value}")
+        logger.info(f"Set environment variable {variable_name} to {value}")
+    except Exception as e:
+        print(f"Error setting environment variable: {e}")
+        logger.error(f"Error setting environment variable: {e}")
+
+#Define function to run docker-compose
+def run_docker_compose(command):
+    try:
+        # Construct the Docker Compose command
+        cmd = ['docker-compose'] + command.split()
+
+        # Run the Docker Compose command and capture the output
+        result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout = result.stdout
+        stderr = result.stderr
+
+        # Log the command and its output
+        logger.info(f"Docker Compose command: {' '.join(cmd)}")
+        logger.info(f"Command output (stdout):\n{stdout}")
+        logger.error(f"Command output (stderr):\n{stderr}")
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error running Docker Compose command: {e}")
+        logger.error(f"Error running Docker Compose command: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
+
+#Main 
+#Logger
+logger = logger("simulation")
+
+#Check if the endpoint is empty
 print(f"The endpoint is {endpoint}")
 print(f"Deploying fleet of {number_of_devices} devices")
 
-#Function to run python script in background
-def run_script_in_background(script_path):
-    try:
-        process = subprocess.Popen(["python3", script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-        print(f"Script {script_path} starting signing service in the background with PID: {process.pid}")
-        return process  # Return the process object
-    except Exception as e:
-        print(f"Error: {e}")
+#Create IOT_ENDPOINT Variable
+set_environment_variable('IOT_ENDPOINT', endpoint)
 
-#Define function to create a docker image
-def build_docker_image(image_name, dockerfile_path=".", log_file=None):
-    try:
-        # Open log file for writing if provided
-        log_output = open(log_file, 'a') if log_file else subprocess.PIPE
-        
-        build_image_process = subprocess.Popen(
-            ["docker", "build", "--tag", image_name, dockerfile_path],
-            stdout=log_output,
-            stderr=log_output
-        )
-        
-        build_image_process.communicate()
-        
-        if log_file:
-            log_output.close()  # Close the log file
-        
-        print(f"Building Docker image {image_name}")
-    except Exception as e:
-        print(f"Error building Docker image {image_name}: {e}")
+#Copy rootCA.pem and rootCA.key to /cert_signing_service
+copy_file('rootCA.pem', './cert_signing_service/certs')
+copy_file('rootCA.key', './cert_signing_service/certs')
 
-#Define function to create a docker container
-def create_docker_container(local_ip, endpoint, n, log_file_path):
-    try:
-        # Open log file for writing
-        with open(log_file_path, "a") as log_file:
-            create_container_process = subprocess.Popen(
-                ["docker", "run", "-d", "--network", "host", "-e", f"HOST_IP={local_ip}", "-e", f"IOT_ENDPOINT={endpoint}", "--name", f"jitp-iot-client-{n}", "jitp-iot-client-img"],
-                stdout=log_file,
-                stderr=log_file
-            )
-
-            create_container_process.communicate()
-
-            print(f"Creating device{n} - Check log file for details.")
-    except Exception as e:
-        print(f"Error creating container for device{n}: {e}")
-
-#Main 
-
-#Get script directory path
-script_directory = os.path.dirname(os.path.abspath(__file__))
-
-#Create logs directory
-create_logs_directory()
-
-#build Container Image
-build_docker_image("jitp-iot-client-img", script_directory, "./logs/docker_build.log")
-
-#Get local ip address
-local_ip = get_local_ip()
-
-#Run signing_service.py in background
-run_signing_service = run_script_in_background("signing_service.py")
-
-for n in range(1,number_of_devices+1):
-
-    create_docker_container(local_ip, endpoint, n, "./logs/docker_run.log")
-    #Wait for 5 seconds before starting the next device
-    time.sleep(5)
-
-
-#Kill the signing_service process   
-run_signing_service.terminate()
+#run docker-compose
+run_docker_compose(f"up -d --scale iot-client={number_of_devices}")
