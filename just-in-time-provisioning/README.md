@@ -23,7 +23,7 @@ The flow diagram below explains each action that happens in a JITP provisioning 
 Clone the repository and navigate to the just in time registration directory.
 ```
 git clone https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive.git
-cd /aws-iot-core-device-provisioning/just-in-time-provisioning
+cd aws-iot-core-device-provisioning-deep-dive/just-in-time-provisioning
 pip3 install requeriments.txt
 ```
 **This will be your work directory from this point**
@@ -322,6 +322,7 @@ For this next step you will be creating a Simulation fleet using Docker containe
    * Use docker log command to dig deeper into the specific container failure.  
    * Make use of AWS Cloudwatch by turning on logs in AWS IoT Core. Go to AWS IoT Core -> Settings -> Logs -> Manage logs, Create a log role and for the Log level use Debug. 
    * All provisioning action are tracked by AWS Cloudtrail, if any error with the provisioning template occur, you be able to identify it by looking for the iot-provisioning identification on the event.  
+   * Docker compose command fails: Try pip3 install --upgrade docker-compose and pip3 install --upgrade docker
 
 ### Next steps
 I recommend you explore calls with [AWS IoT Device management - fleet indexing](https://docs.aws.amazon.com/iot/latest/developerguide/iot-indexing.html), using Fleet indexing will allow you to filter device by Groups, Hardware version etc. 

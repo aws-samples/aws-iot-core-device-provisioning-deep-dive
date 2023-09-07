@@ -26,6 +26,7 @@ import argparse
 import os
 import logging
 import shutil
+import sys
 
 
 #Pass argument into variables usin arparse Lib
@@ -90,12 +91,23 @@ def logger(name):
     return logger
 
 #Define fuction to move rootCA to diretory
-def copy_file(source_file_path, destination_directory):
+def copy_file(source_file_path, destination_directory, stop_on_error=False):
     try:
+        # Get the directory of the currently executing script
+        script_directory = os.path.dirname(os.path.realpath(__file__))
+
+        # Set the working directory to the script directory
+        os.chdir(script_directory)
+        print(f"Working directory is now '{script_directory}'.")
+        logger.info(f"Working directory is now '{script_directory}'.")
+
         # Check if the source file exists
         if not os.path.exists(source_file_path):
-            print(f"Source file '{source_file_path}' not found.")
-            return
+            error_message = f"Source file '{source_file_path}' not found."
+            print(error_message)
+            logger.error(error_message)
+            if stop_on_error:
+                sys.exit(1)  # Stop the script with a non-zero exit code
 
         # Get the filename from the source path
         file_name = os.path.basename(source_file_path)
@@ -110,7 +122,9 @@ def copy_file(source_file_path, destination_directory):
         logger.info(f"File '{file_name}' copied to '{destination_file_path}'.")
     except Exception as e:
         print(f"An error occurred: {e}")
-        logger.error(f"An error occurred: {e}") 
+        logger.error(f"An error occurred: {e}")
+        if stop_on_error:
+            sys.exit(1)  # Stop the script with a non-zero exit code
 
 #Define create ENV variables
 def set_environment_variable(variable_name, value):
@@ -133,6 +147,7 @@ def run_docker_compose(command):
         stdout = result.stdout
         stderr = result.stderr
 
+        print("Docker compose building deployment....")
         # Log the command and its output
         logger.info(f"Docker Compose command: {' '.join(cmd)}")
         logger.info(f"Command output (stdout):\n{stdout}")
@@ -157,8 +172,8 @@ print(f"Deploying fleet of {number_of_devices} devices")
 set_environment_variable('IOT_ENDPOINT', endpoint)
 
 #Copy rootCA.pem and rootCA.key to /cert_signing_service
-copy_file('rootCA.pem', './cert_signing_service/certs')
-copy_file('rootCA.key', './cert_signing_service/certs')
+copy_file('rootCA.pem', './cert_signing_service/certs', stop_on_error=True)
+copy_file('rootCA.key', './cert_signing_service/certs', stop_on_error=True)
 
 #run docker-compose
 run_docker_compose(f"up -d --scale iot-client={number_of_devices}")

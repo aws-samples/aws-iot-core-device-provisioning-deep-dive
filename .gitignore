@@ -13,14 +13,14 @@ venv/
 .vscode/
 
 # Ignore CSR PEM and key files
-.csr
-.key
-.pem
-.crt
-.slr
+*.csr
+*.key
+*.pem
+*.crt
+*.srl
 
 #Ignore logs
-.log
+*.log
 */logs
 
 #Mac files
