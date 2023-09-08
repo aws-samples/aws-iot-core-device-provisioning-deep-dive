@@ -4,8 +4,6 @@ services:
     build:
       context: ./cert_signing_service
       dockerfile: Dockerfile.cert_signing_service
-    ports:
-      - "8080:8080"
     networks:
       - ca_signing_network
     container_name: cert_signing_service

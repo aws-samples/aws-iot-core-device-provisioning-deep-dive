@@ -17,6 +17,7 @@ The flow diagram below explains each action that happens in a JITP provisioning 
  * AWS cloud9 or AWS CloudShell , with the relevant permissions to execute AWS IoT actions, or your preferred IDE with the relevant access.
  * AWS Command line interface (AWS CLI), installed and configured.
  * IAM role creation access (You will need to create IAM roles).
+ * Install Docker compose on your environment
 
 ### Clone the repository 
 
@@ -314,7 +315,6 @@ For this next step you will be creating a Simulation fleet using Docker containe
    ```
    Python3 simulation.py -e <YOUR-IOT-CORE-ATS_ENDPOINT> -n <NUMBER-OF-DEVICES>
    ```
-
 
 ### Troubleshooting 
    * Use the log files. 

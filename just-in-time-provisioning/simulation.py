@@ -116,7 +116,7 @@ def copy_file(source_file_path, destination_directory, stop_on_error=False):
         destination_file_path = os.path.join(destination_directory, file_name)
 
         # Copy the file to the destination directory
-        shutil.copy2(source_file_path, destination_file_path)
+        shutil.copy2(source_file_path, destination_directory)
 
         print(f"File '{file_name}' copied to '{destination_file_path}'.")
         logger.info(f"File '{file_name}' copied to '{destination_file_path}'.")
