@@ -270,7 +270,7 @@ Now that you have all resource in place and understand the template, you can exe
     ```
     aws iot get-registration-code
     ```
-**Save this code for the next step**
+    **Save this code for the next step**
        
     ```
     openssl genrsa -out verificationCert.key 2048
@@ -278,9 +278,9 @@ Now that you have all resource in place and understand the template, you can exe
     openssl req -new -key verificationCert.key -out verificationCert.csr 
     ```
 
-**Using the registration code, now you need to set the Common Name field of the certificate with the registration code:**
+    **Using the registration code, now you need to set the Common Name field of the certificate with the registration code:**
       
-**Common Name (e.g. server FQDN or YOUR name) []: XXXXXXXREGISTRATION-CODEXXXXXXX**
+    **Common Name (e.g. server FQDN or YOUR name) []: XXXXXXXREGISTRATION-CODEXXXXXXX**
 
     ```
     openssl x509 -req -in verificationCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out verificationCert.pem -days 500 -sha256
