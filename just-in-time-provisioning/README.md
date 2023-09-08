@@ -25,7 +25,6 @@ Clone the repository and navigate to the just in time registration directory.
 ```
 git clone https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive.git
 cd aws-iot-core-device-provisioning-deep-dive/just-in-time-provisioning
-pip3 install requeriments.txt
 ```
 **This will be your work directory from this point**
 
