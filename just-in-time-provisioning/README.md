@@ -280,7 +280,7 @@ Now that you have all resource in place and understand the template, you can exe
 
     **Using the registration code, now you need to set the Common Name field of the certificate with the registration code:**
       
-    **Common Name (e.g. server FQDN or YOUR name) []: XXXXXXXREGISTRATION-CODEXXXXXXX**
+    **Common Name (e.g. server FQDN or YOUR name) []: < REGISTRATION-CODE>**
 
     ```
     openssl x509 -req -in verificationCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out verificationCert.pem -days 500 -sha256
