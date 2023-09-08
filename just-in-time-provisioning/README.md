@@ -267,25 +267,24 @@ Now that you have all resource in place and understand the template, you can exe
    The verificationCert.pem file we get from this step will be used when we register the CA certificate. This is necessary step which protects the registration, the service or user registering must be able to acquire a verification code. 
    Execute the following commands:
 
-         ```
-         aws iot get-registration-code
-         ```
-         
-       **Save this code for the next step**
+    ```
+    aws iot get-registration-code
+    ```
+**Save this code for the next step**
        
-         ```
-         openssl genrsa -out verificationCert.key 2048
+    ```
+    openssl genrsa -out verificationCert.key 2048
 
-         openssl req -new -key verificationCert.key -out verificationCert.csr 
-         ```
+    openssl req -new -key verificationCert.key -out verificationCert.csr 
+    ```
 
-       **Using the registration code, now you need to set the Common Name field of the certificate with the registration code:**
+**Using the registration code, now you need to set the Common Name field of the certificate with the registration code:**
       
-       **Common Name (e.g. server FQDN or YOUR name) []: XXXXXXXREGISTRATION-CODEXXXXXXX**
+**Common Name (e.g. server FQDN or YOUR name) []: XXXXXXXREGISTRATION-CODEXXXXXXX**
 
-         ```
-         openssl x509 -req -in verificationCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out verificationCert.pem -days 500 -sha256
-         ```
+    ```
+    openssl x509 -req -in verificationCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out verificationCert.pem -days 500 -sha256
+    ```
 
 * **Register the CA certificate**
    This is the final step of the registration, there are a few modes in which a CA can be registered, to understand that better please read [Manage your CA certificates](https://docs.aws.amazon.com/iot/latest/developerguide/manage-your-CA-certs.html).
