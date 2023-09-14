@@ -141,8 +141,9 @@ def run_docker_compose(command):
     try:
         # Construct the Docker Compose command
         print("Docker compose building deployment....")
-        cmd = ['docker-compose'] + command.split()
+        cmd = ['docker', 'compose'] + command.split()
 
+    
         # Open a log file for writing
         with open('docker_compose.log', 'w') as log_file:
             log_file.write(f"Docker Compose command: {' '.join(cmd)}\n")

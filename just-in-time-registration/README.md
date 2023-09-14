@@ -1,14 +1,13 @@
-## Just in time provisioning(JITP)
+## Just in time registration(JITR)
 
 ### Introduction
-In this section you will execute every step to configure AWS IoT Core for JITP, and run a simulation fleet using JITP. Note this is an educational project, and the example and samples utilized here should not be implemented into projects without changes. For more information go to [Just in time provisioning documentation page](https://docs.aws.amazon.com/iot/latest/developerguide/jit-provisioning.html). 
+In this section you will execute every step to configure AWS IoT Core for JITR, and run a simulation fleet using JITR. Note this is an educational project, and the example and samples utilized here should not be implemented into projects without changes. For more information go to [Just in time registration documentation page](https://docs.aws.amazon.com/iot/latest/developerguide/auto-register-device-cert.html). 
 
+Just in time registration has a dependency on using a private certificate authority(CA). The Private CA must be registered in the AWS IoT Core account and region where you wish to provision your devices for. In addition to that you must make sure the device attempting to connect to AWS IoT Core for the first time has a Unique device certificate, signed by the Private CA (or chain) which you registered in AWS IoT Core. 
 
-Just in time provisioning has a dependency on using a private certificate authority(CA). The Private CA must be registered in the AWS IoT Core account and region where you wish to provision your devices for. In addition to that you must make sure the device attempting to connect to AWS IoT Core for the first time has a Unique device certificate, signed by the Private CA (or chain) which you registered in AWS IoT Core. 
+The flow diagram below explains each action that happens in a JITR provisioning flow, note that some of those are not part of the flow itself, but actions that have to be done by a security administrator and manufacturing prior to the first connection. 
 
-The flow diagram below explains each action that happens in a JITP provisioning flow, note that some of those are not part of the flow itself, but actions that have to be done by a security administrator and manufacturing prior to the first connection. 
-
-![JITP flow](/assets/jitp-flow.png)
+![JITR flow](/assets/jitr-flow.png)
 
 
 ### Pre-requisites 
@@ -17,18 +16,18 @@ The flow diagram below explains each action that happens in a JITP provisioning 
  * AWS cloud9 or AWS CloudShell , with the relevant permissions to execute AWS IoT actions, or your preferred IDE with the relevant access.
  * AWS Command line interface (AWS CLI), installed and configured.
  * IAM role creation permissions (You will need to create IAM roles).
- * Install Docker compose on your environment. (Use latest version docker compose - https://docs.docker.com/compose/install)
+ * Install Docker compose on your environment
 
 ### Clone the repository 
 
 Clone the repository and navigate to the just in time registration directory.
 ```
 git clone https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive.git
-cd aws-iot-core-device-provisioning-deep-dive/just-in-time-provisioning
+cd aws-iot-core-device-provisioning-deep-dive/just-in-time-registration
 ```
 **This will be your work directory from this point**
 
-### Understanding the provisioning template
+### Understanding the Just in time registration AWS Lambda function.
 Provisioning templates, are JSON documents used by the JITP service in order to customize how your IoT things will be provisioned and registered. Actions such as creating a thing, adding a thing to a group and attach a policy are examples of action executed accordingly to the template. Read the [provisioning templates](https://docs.aws.amazon.com/iot/latest/developerguide/provision-template.html) section on the documentation page to learn more. 
 
 For this test you will start with the example below. The provisioning template is the start point when developing for JITP, what you define in the template will influence how your authorization and cloud infrastructure needs to be setup. In this example the **Parameters** are being extracted from the device certificate itself. When you sign a device certificate you can add fields such as CommonName, Company, country etc. Those parameters will be used to register you IoT thing, AWS IoT defines the following:
@@ -301,13 +300,13 @@ For this next step you will be creating a Simulation fleet using Docker containe
    **Important** This simulation is using a simple x509 certificate and not a "chain certificate", in this use case make sure no other Private CA with the same subject name is present in IoT Core.
 
    The Diagram below describes what you are about to do.
-   * The simulation.py will build a container Image based on the present docker compose file.
+   * The simulation.py will build a container Image based on the present Dockerfile.
    * The simulation will use the provided arguments (endpoint and FleetSize) to create docker containers.
-   *  In the background the Signing_service.py will start in its own isolated container in the Dcoker bridge network mode.
+   *  In the background the Signing_service.py will start.
    *  As the containers start, they will self generate unique Certificate Keys, and request the signing_service.py for a CA signature. **Note:** This is an educational example of how certificates can be signed on a secure and completely isolated network, do not replicate this method without proper understanding of manufacturing with x509 certificates. 
-   *  With a signed certificate each container will connect to AWS IoT Core and start the JITP flow, they will then successfully connect and publish messages, on the AnyCompany/Certificate-DeviceSerialNumber/telemetry
+   *  With a signed certificate each container will connect to AWS IoT Core and start the JITP flow, they will then successfully connect and publish messages, on the AnyCompany/serialNumber/telemetry
 
-![deep-dive-jitp.drawio](/assets/deep-dive-jitp.png)
+![deep-dive-jitr.drawio](/assets/deep-dive-jitp.png)
 
    Simply start the simulation with ENDPOINT and desire Fleet size (Max 20 device change at your own risk!). 
 
@@ -332,3 +331,240 @@ I recommend you explore calls with [AWS IoT Device management - fleet indexing](
    * Delete the Provisioning template.
    * Delete the thing policy.
    * Terminate any EC2 / Cloud9 Instances that you created for the walkthrough.
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Pre-requisites 
+ 
+ * AWS account 
+ * AWS cloud9 instance with the relevant permission to execute AWS IoT actions
+ * IAM role creation access
+
+ ### Building a simulation Public key infrastructure(PKI)
+* Go to AWS Cloud9
+
+    1 - Go to AWS cloud9 -> Create environment -> give it a name 
+        
+        Use the following configurations -
+        
+        - Create a new EC2 instance for environment (direct access)
+        - t3.small (2 GiB RAM + 2 vCPU)
+        - AmazonLinux 2
+
+        Next step and create
+
+* Clone the repository for the simulation
+    ```
+    git clone PLACEHOLDER
+    cd /repo/JITR
+    ```
+        
+* Create a simulation PKI by running the following OpenSSL commands:
+
+    ```    
+    openssl genrsa -out rootCA.key 2048
+    ```
+    ```
+    openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1024 -out rootCA.pem
+    ```
+    Fill the signing form. All fields are optional, but the common name, in this case lets use rootCA. 
+    
+* Registering Certificate with AWS IoT Core
+    
+    Execute the following commands
+
+    ```
+    aws iot get-registration-code
+    ```
+    Save this code for the next step
+    ```
+    openssl genrsa -out verificationCert.key 2048
+
+    openssl req -new -key verificationCert.key -out verificationCert.csr 
+    ```
+
+    Now we need to set the Common Name field of the certificate with the registration code:
+
+    Country Name (2 letter code) [AU]:
+
+    State or Province Name (full name) []:
+
+    Locality Name (for example, city) []:
+
+    Organization Name (for example, company) []:
+
+    Organizational Unit Name (for example, section) []:
+
+    Common Name (e.g. server FQDN or YOUR name) []: XXXXXXXREGISTRATION-CODEXXXXXXX
+
+    Email Address []:
+
+    We use the CSR to create a private key verification certificate. The verificationCert.pem file we get from this step will be used when we register the CA certificate.
+
+    ```
+    openssl x509 -req -in verificationCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out verificationCert.pem -days 500 -sha256
+    ```
+
+* Register a CA certificate
+
+    ```
+    aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration 
+    ```
+
+### Create the JITR lambda function 
+
+* Create the lambda role 
+    - Go to IAM 
+    - Create a role with the following permissions 
+      ```
+                {  
+        "Version":"2012-10-17",
+        "Statement":[  
+            {  
+                "Effect":"Allow",
+                "Action":[  
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                ],
+                "Resource":"arn:aws:logs:*:*:*"
+            },
+            {  
+                "Effect":"Allow",
+                "Action":[  
+                    "iot:UpdateCertificate",
+                    "iot:CreatePolicy",
+                    "iot:AttachPrincipalPolicy"
+                ],
+                "Resource":"*"
+            }
+        ]
+        }
+- Save the ROLE ARN.
+
+
+   ```
+    aws lambda create-function \
+        --region <YOUR-REGION_HERE> \
+        --function-name jitr \
+        --zip-file fileb://./jitr-lambda.zip \
+        --role <LAMBDA-ROLE-ARN-HERE> \
+        --handler lambda_function.lambda_handler \
+        --runtime python3.7 \
+        --timeout 30 \
+        --memory-size 256
+    ```
+
+### Create the JITR rule action 
+
+```
+aws iot create-topic-rule --rule-name JITRRule \
+  --topic-rule-payload "{
+        \"sql\": \"SELECT * FROM '\$aws/events/certificates/registered/#' WHERE certificateStatus = \\\"PENDING_ACTIVATION\\\"\",
+        \"description\": \"Rule for JITR\",
+        \"actions\": [
+            {
+                \"lambda\": {
+                    \"functionArn\": \"<YOUR-LAMBDA-ARN-HERE>\"
+                }
+            }
+        ]
+     }"
+```
+
+### Testing the Registration flow
+
+For this next step we will be creating a Simulation fleet using Docker containers to simulate a IoT thing.
+
+* Run the following commands to create a Docker image. Note that in this Simulation example the Root Ca key will be part of the Container image, which should never be applied in a production environments.!!!Important to notice this is a strictly for demonstration purpose example, CA keys should never be store in device images!!!
+
+
+    ```
+    mv rootCA.key ./iotdevice/rootCA.key
+    mv rootCA.pem ./iotdevice/rootCA.pem
+    docker build --tag golden-image-jitr .
+    ```
+* Now we get the endpoint for your AWS IoT core and run the simulation 
+
+    ```
+    aws iot describe-endpoint \
+    --endpoint-type iot:Data-ATS
+    ```
+    Use it to run the next command. Also feel free to simulate as many devices as you like by change the number 20 to anything else. (Keep in mind too many containers will crash your Instance if not properly sized)
+
+    ```
+    python3 simulate_fleet.py -e <YOUR-ENDPOINT-HERE> -n 20
+    ```
+Check your AWS IoT Core - Under things, you should see the device populating the registry list with random UUIDs
+
+
+
+
+
