@@ -9,8 +9,10 @@ Just in time provisioning has a dependency on using a private certificate author
 The flow diagram below explains each action that happens in a JITP provisioning flow, note that some of those are not part of the flow itself, but actions that have to be done by a security administrator and manufacturing prior to the first connection. 
 
 ###JITP provisioning flow
-![JITP flow](/assets/jitp-flow.png)
 
+
+![JITP flow](/assets/jitp-flow.png)
+Below is the flow diagram which the JITP methods uses. Notice that in this flow relies on a registered certificate authority and a Unique device/client certificate that is signed by it.
 
 ### Pre-requisites 
 
@@ -207,7 +209,7 @@ aws iot create-policy --policy-name AnyTypeThing-policy --policy-document file:/
  ### Creating the JITP provisioning role
  This role is assumed by the AWS IoT Core task running your provisioning template. The minimum trust and permissions for the role will vary depending on your provisioning template, example if your provisioning does not include adding thing to a Billing group, you don't need the **"iot:AddThingToBillingGroup"** action. To facilitate the scoping of a correct policy, AWS provides a managed [policy for Thing Registration](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AWSIoTThingsRegistration.html), we recommend you start from that one and trim it to the least needed privileges for your provisioning method. 
 
-For this educational project you can just execute the commands below as is:
+For this example project you can just execute the commands below as is:
 
     ```
     aws iam create-role \
@@ -296,7 +298,9 @@ Now that you have all resource in place and understand the template, you can exe
       ```
       aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration --registration-config templateName=jitp-provisioning-template
       ```
+     If you navigate to **AWS IoT Core -> Security -> CA certificates** you will see that your CA has been registered as the example below.
 
+    ![registered-ca](/assets/registered-ca.png)
 ### Testing the provisioning template and deploying a simulation fleet 
 
 For this next step you will be creating a Simulation fleet using Docker containers that simulate an IoT client device, using the [AWS IoT V2 SDK for Python](https://github.com/aws/aws-iot-device-sdk-python-v2).
@@ -306,7 +310,7 @@ For this next step you will be creating a Simulation fleet using Docker containe
    The Diagram below describes what you are about to do.
    * The simulation.py will build a container Image based on the present docker compose file.
    * The simulation will use the provided arguments (endpoint and FleetSize) to create docker containers.
-   *  In the background the Signing_service.py will start in its own isolated container in the Dcoker bridge network mode.
+   *  In the background the Signing_service.py will start in its own isolated container in the Docker bridge network mode.
    *  As the containers start, they will self generate unique Certificate Keys, and request the signing_service.py for a CA signature. **Note:** This is an educational example of how certificates can be signed on a secure and completely isolated network, do not replicate this method without proper understanding of manufacturing with x509 certificates. 
    *  With a signed certificate each container will connect to AWS IoT Core and start the JITP flow, they will then successfully connect and publish messages, on the AnyCompany/Certificate-DeviceSerialNumber/telemetry
 

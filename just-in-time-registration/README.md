@@ -12,7 +12,9 @@ Before diving deeper on JITR, it is important that you familiarize yourself with
 The JITR flow relies on an AWS Lambda function to complete the flow and provision AWS IoT resources. Because a Lambda function is used in this method, JITR is a much more flexible provisioning method than [JITP](https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive/tree/main/just-in-time-provisioning). However, JITP is a much streamlined provisioning method which does not require an External lambda function to be designed, and it should be used if it meets your application requirement. 
 A common use case to use JITR instead of JITP, is when you may want to enrich or check your device provisioning flow against another data source before the certificate is activated, e.g. Database table.  
 
-###JITR provisionig flow
+###JITR provisioning flow
+Below is the flow diagram which the JITR methods uses. Notice that in this flow relies on a registered certificate authority and a Unique device/client certificate that is signed by it. In this example you will also can make use of other AWS service or even external APIs for extra validation, we will be exemplifying with DynamoDB. 
+
 ![JITR flow](/assets/jitr-flow.png)
 
 ### Pre-requisites 
@@ -45,16 +47,18 @@ During the provisioning flow the Lambda function will be invoked by an [AWS IoT 
         "certificateRegistrationTimestamp": "certificateRegistrationTimestamp"
 }
 ```
-The Certificate will remain on a pending_activation status until the provisioning flow is completed. In the case of JITR it will be completed by a Lambda function that can perform actions on AWS IoT Core. 
+This message is published to the reserved topic Certificate anytime an unregistered certificate signed by a Certificate Authority registered in AWS IoT Core attempts to connect. The certificates will be auto registered (if "auto-registration" on) and will remain on a **pending_activation** status until the provisioning flow is completed. In the case of JITR it will be completed by a Lambda function that can perform actions on AWS IoT Core.
 
 ###Designing an AWS IoT Core JITR Lambda Function.
-When designing a Lambda function for JITR you must follow the same [best practices of designing any Lambda function](https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html). Since JITR leverages a Private Certificate Authority, and uniquely generate and signed client certificate, it is a common practice to leverage the information in the client certificate during the creation of AWS IoT Resources, by extracting a serial number from the certificate and using it as an attribute on the AWS IoT Core registry for example. 
+When designing a Lambda function for JITR you must follow the same [best practices of designing any Lambda function](https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html). Since JITR leverages a Private Certificate Authority, and uniquely generate and signed client certificate, it is a common practice to leverage the information in the client certificate during the creation of AWS IoT Resources, by extracting a serial number from the certificate and assigning it to an attribute on the AWS IoT Core registry for example. 
+
 ### Designing the JITR Lambda function
-In the example Lambda function used in this simulation, we will make use of a [Python Crypto library](https://pypi.org/project/pycrypto/) to extract the Certificate Distinguished name information from the provided client certificate. In order properly deploy this Lambda function with its dependencies, you can use the [AWS ToolKit for VS code](https://aws.amazon.com/visualstudio/) or [AWS Cloud9](https://aws.amazon.com/cloud9/) which already come with toolkit integrated. Optionally you can also work with [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html). **In this example I will be using AWS ToolKit for VS code.**
+In the example Lambda function used in this simulation, we will make use of a [Python Crypto library](https://pypi.org/project/pycrypto/) to extract the Certificate Serial Number and Distinguished name information from the provided client certificate. In order properly deploy this Lambda function with its dependencies, you can use the [AWS ToolKit for VS code](https://aws.amazon.com/visualstudio/) or [AWS Cloud9](https://aws.amazon.com/cloud9/) which already come with toolkit integrated. Optionally you can also work with [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html). **In this example I will be using an AWS Lambda Layer and the example files in this repository.**
+In the directory **/jitr-lambda-example** you can find the **lambda_function.py** which was designed with Python **boto3** and **pyOpenSSL** libraries. You will also find the necessary resources to create the custom Lambda Layer.
 
-In the directory **/jitr-lambda-example**,the Python virtual environment and dependencies have been installed, and a ready to be deployed as Lambda, using Python 3.7runtime.  TIMEOUT 10sec
+Before deploying the lambda function, we must create a Lambda execution role. [Read about how to scope AWS Lambda execution roles](https://docs.aws.amazon.com/lambda/latest/operatorguide/least-privilege.html#). For this particular role, we need to execute action in AWS IoT Core, AWS CloudWatch and AWS DynamoDB. In a production environment you must scope your role permission down to the least needed privileges, which will be reflected by the actions executed in your Lambda function. For this particular example, you will find a policy **/jitr-lambda-function/lambda-execution-role-policy.json** that has been designed with the least privileges for the example **lambda_function.py**. Keep in mind that if you decide to customize the example for testing, you must make sure the policy meets your requeriments.
 
-Run the following commands:
+Run the following commands to create the Lamnbda execution role:
 
 ```
 ```
@@ -242,7 +246,7 @@ aws iot create-policy --policy-name AnyTypeThing-policy --policy-document file:/
  ### Creating the JITP provisioning role
  This role is assumed by the AWS IoT Core task running your provisioning template. The minimum trust and permissions for the role will vary depending on your provisioning template, example if your provisioning does not include adding thing to a Billing group, you don't need the **"iot:AddThingToBillingGroup"** action. To facilitate the scoping of a correct policy, AWS provides a managed [policy for Thing Registration](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AWSIoTThingsRegistration.html), we recommend you start from that one and trim it to the least needed privileges for your provisioning method. 
 
-For this educational project you can just execute the commands below as is:
+For this example project you can just execute the commands below as is:
 
     ```
     aws iam create-role \
@@ -283,8 +287,6 @@ Now that you have all resource in place and understand the template, you can exe
       openssl genrsa -out rootCA.key 2048
 
       openssl req -new -sha256 -key rootCA.key -nodes -out rootCA.csr -config rootCA_openssl.conf
-
-      openssl x509 -req -days 3650 -extfile rootCA_openssl.conf -extensions v3_ca -in rootCA.csr -signkey rootCA.key -out rootCA.pem
       ```
 * **Fill the signing form**. 
    Feel free to use any value you like, but fill all fields, as the Certificate DN is a way to identify Certificates. An example below: 
@@ -300,6 +302,12 @@ Now that you have all resource in place and understand the template, you can exe
    Organization Unit [ ]:**All**
    
    Common Name [ ]:**JITR-IoT-Devices-Root-CA**
+
+
+* **Now sign the Certificate with the key**
+      ```
+      openssl x509 -req -days 3650 -extfile rootCA_openssl.conf -extensions v3_ca -in rootCA.csr -signkey rootCA.key -out rootCA.pem
+      ```
 
 * **Create verification code certificate**.
    The verificationCert.pem file we get from this step will be used when we register the CA certificate. This is necessary step which protects the registration, the service or user registering must be able to acquire a verification code. 
@@ -320,6 +328,7 @@ Now that you have all resource in place and understand the template, you can exe
       
     **Common Name (e.g. server FQDN or YOUR name) []: < REGISTRATION-CODE>**
 
+* **Now sign the Certificate with the key**
     ```
     openssl x509 -req -in verificationCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out verificationCert.pem -days 500 -sha256
     ```
@@ -331,6 +340,9 @@ Now that you have all resource in place and understand the template, you can exe
       ```
       aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration 
       ```
+    If you navigate to **AWS IoT Core -> Security -> CA certificates** you will see that your CA has been registered as the example below.
+
+    ![registered-ca](/assets/registered-ca.png)
 
 ### Testing the provisioning template and deploying a simulation fleet 
 
