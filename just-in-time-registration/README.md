@@ -7,8 +7,13 @@ Just in time registration has a dependency on using a private certificate author
 
 The flow diagram below explains each action that happens in a JITR provisioning flow, note that some of those are not part of the flow itself, but actions that have to be done by a security administrator and manufacturing prior to the first connection. 
 
-![JITR flow](/assets/jitr-flow.png)
+**JITP vs JITR**
+Before diving deeper on JITR, it is important that you familiarize yourself with Just-In-Time-Provisionig.
+The JITR flow relies on an AWS Lambda function to complete the flow and provision AWS IoT resources. Because a Lambda function is used in this method, JITR is a much more flexible provisioning method than [JITP](https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive/tree/main/just-in-time-provisioning). However, JITP is a much streamlined provisioning method which does not require an External lambda function to be designed, and it should be used if it meets your application requirement. 
+A common use case to use JITR instead of JITP, is when you may want to enrich or check your device provisioning flow against another data source before the certificate is activated, e.g. Database table.  
 
+###JITR provisionig flow
+![JITR flow](/assets/jitr-flow.png)
 
 ### Pre-requisites 
 
@@ -28,7 +33,41 @@ cd aws-iot-core-device-provisioning-deep-dive/just-in-time-registration
 **This will be your work directory from this point**
 
 ### Understanding the Just in time registration AWS Lambda function.
-Provisioning templates, are JSON documents used by the JITP service in order to customize how your IoT things will be provisioned and registered. Actions such as creating a thing, adding a thing to a group and attach a policy are examples of action executed accordingly to the template. Read the [provisioning templates](https://docs.aws.amazon.com/iot/latest/developerguide/provision-template.html) section on the documentation page to learn more. 
+During the provisioning flow the Lambda function will be invoked by an [AWS IoT Core rule](https://docs.aws.amazon.com/iot/latest/developerguide/iot-rules.html). The invocation will pass information about the registration event which is published to a reserved topic, **$aws/events/certificates/registered/caCertificateId**, where the caCertificateId is the CA that issued the client certificate. The message published to this topic has the following structure: 
+
+```json
+{
+        "certificateId": "certificateId",
+        "caCertificateId": "caCertificateId",
+        "timestamp": timestamp,
+        "certificateStatus": "PENDING_ACTIVATION",
+        "awsAccountId": "awsAccountId",
+        "certificateRegistrationTimestamp": "certificateRegistrationTimestamp"
+}
+```
+The Certificate will remain on a pending_activation status until the provisioning flow is completed. In the case of JITR it will be completed by a Lambda function that can perform actions on AWS IoT Core. 
+
+###Designing an AWS IoT Core JITR Lambda Function.
+When designing a Lambda function for JITR you must follow the same [best practices of designing any Lambda function](https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html). Since JITR leverages a Private Certificate Authority, and uniquely generate and signed client certificate, it is a common practice to leverage the information in the client certificate during the creation of AWS IoT Resources, by extracting a serial number from the certificate and using it as an attribute on the AWS IoT Core registry for example. 
+### Designing the JITR Lambda function
+In the example Lambda function used in this simulation, we will make use of a [Python Crypto library](https://pypi.org/project/pycrypto/) to extract the Certificate Distinguished name information from the provided client certificate. In order properly deploy this Lambda function with its dependencies, you can use the [AWS ToolKit for VS code](https://aws.amazon.com/visualstudio/) or [AWS Cloud9](https://aws.amazon.com/cloud9/) which already come with toolkit integrated. Optionally you can also work with [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html). **In this example I will be using AWS ToolKit for VS code.**
+
+In the directory **/jitr-lambda-example**,the Python virtual environment and dependencies have been installed, and a ready to be deployed as Lambda, using Python 3.7runtime.  TIMEOUT 10sec
+
+Run the following commands:
+
+```
+```
+
+
+### Creating a DynamoDb Table for provisioning authorization
+
+
+```
+aws dynamodb
+```
+
+service in order to customize how your IoT things will be provisioned and registered. Actions such as creating a thing, adding a thing to a group and attach a policy are examples of action executed accordingly to the template. Read the [provisioning templates](https://docs.aws.amazon.com/iot/latest/developerguide/provision-template.html) section on the documentation page to learn more. 
 
 For this test you will start with the example below. The provisioning template is the start point when developing for JITP, what you define in the template will influence how your authorization and cloud infrastructure needs to be setup. In this example the **Parameters** are being extracted from the device certificate itself. When you sign a device certificate you can add fields such as CommonName, Company, country etc. Those parameters will be used to register you IoT thing, AWS IoT defines the following:
 
@@ -260,7 +299,7 @@ Now that you have all resource in place and understand the template, you can exe
    
    Organization Unit [ ]:**All**
    
-   Common Name [ ]:**JITP-IoT-Devices-Root-CA**
+   Common Name [ ]:**JITR-IoT-Devices-Root-CA**
 
 * **Create verification code certificate**.
    The verificationCert.pem file we get from this step will be used when we register the CA certificate. This is necessary step which protects the registration, the service or user registering must be able to acquire a verification code. 
@@ -287,10 +326,10 @@ Now that you have all resource in place and understand the template, you can exe
 
 * **Register the CA certificate**
    This is the final step of the registration, there are a few modes in which a CA can be registered, to understand that better please read [Manage your CA certificates](https://docs.aws.amazon.com/iot/latest/developerguide/manage-your-CA-certs.html).
-   In the example below we are registering for a single account, active and with auto-registration on. The auto-registration will invoke the provisioning template.
+   In the example below we are registering for a single account, active and with auto-registration on. The auto-registration will register a certificate on PENDING_ACTIVATIOn state and publish the event to the **$aws/events/certificates/registered/caCertificateId** topic.
 
       ```
-      aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration --registration-config templateName=jitp-provisioning-template
+      aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration 
       ```
 
 ### Testing the provisioning template and deploying a simulation fleet 

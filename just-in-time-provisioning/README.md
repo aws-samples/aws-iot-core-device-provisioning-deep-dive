@@ -8,6 +8,7 @@ Just in time provisioning has a dependency on using a private certificate author
 
 The flow diagram below explains each action that happens in a JITP provisioning flow, note that some of those are not part of the flow itself, but actions that have to be done by a security administrator and manufacturing prior to the first connection. 
 
+###JITP provisioning flow
 ![JITP flow](/assets/jitp-flow.png)
 
 
@@ -30,6 +31,8 @@ cd aws-iot-core-device-provisioning-deep-dive/just-in-time-provisioning
 
 ### Understanding the provisioning template
 Provisioning templates, are JSON documents used by the JITP service in order to customize how your IoT things will be provisioned and registered. Actions such as creating a thing, adding a thing to a group and attach a policy are examples of action executed accordingly to the template. Read the [provisioning templates](https://docs.aws.amazon.com/iot/latest/developerguide/provision-template.html) section on the documentation page to learn more. 
+
+![JITP template mapping](/assets/jitp-template-mapping.png)
 
 For this test you will start with the example below. The provisioning template is the start point when developing for JITP, what you define in the template will influence how your authorization and cloud infrastructure needs to be setup. In this example the **Parameters** are being extracted from the device certificate itself. When you sign a device certificate you can add fields such as CommonName, Company, country etc. Those parameters will be used to register you IoT thing, AWS IoT defines the following:
 

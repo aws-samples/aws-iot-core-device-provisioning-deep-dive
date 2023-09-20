@@ -14,34 +14,26 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## Code of Conduct
+# This project has adopted the [Amazon Open Source Code of Conduct](https://aws.github.io/code-of-conduct).
+# For more information see the [Code of Conduct FAQ](https://aws.github.io/code-of-conduct-faq) or contact
+# opensource-codeofconduct@amazon.com with any additional questions or comments.
 
 
-import os
-import subprocess
-import json
-import argparse
-import time
+FROM ubuntu:latest
 
+WORKDIR /opt/iot_client
 
+# Copy the application code
+COPY . /opt/iot_client
 
-#Pass argument into variables
-parser = argparse.ArgumentParser()
-parser.add_argument("-e", "--endpoint", action="store", required=True, dest="endpoint", help="regional AWS IoT Core AT endpoint")
-parser.add_argument("-n", "--fleetsize", action="store", required=True, dest="fleetsize", help="Numbers of device on the simulated fleet")
+# Update and install dependencies
+RUN apt update -y \
+    && apt upgrade -y \
+    && apt install python3 python3-pip openssl wget git -y \
+    && pip install -r requirements.txt \
+    && pip install awsiotsdk \
+    && git clone https://github.com/aws/aws-iot-device-sdk-python-v2.git
 
-args = parser.parse_args()
-endpoint = args.endpoint
-number_of_devices = int(args.fleetsize)
-
-print(f"The endpoint is {endpoint}")
-print(f"Deploying fleet of {number_of_devices} devices")
-
-for n in range(1,number_of_devices+1):
-
-
-    create_container = subprocess.getoutput(f"docker run -d --network host -e ENDPOINT={endpoint} --name device{n} golden-image-jitr >> docker.logs")
-
-
-    print(f"Creating device{n}") 
-    
-    time.sleep(3)
+#Run the Python scripts to create and sign certificate, then starts sample from AWS IOT DEVICE PYTHON SDK
+CMD ["python3", "/opt/iot_client/device_cert_gen.py"]
