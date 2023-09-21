@@ -12,7 +12,7 @@ Before diving deeper on JITR, it is important that you familiarize yourself with
 The JITR flow relies on an AWS Lambda function to complete the flow and provision AWS IoT resources. Because a Lambda function is used in this method, JITR is a much more flexible provisioning method than [JITP](https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive/tree/main/just-in-time-provisioning). However, JITP is a much streamlined provisioning method which does not require an External lambda function to be designed, and it should be used if it meets your application requirement. 
 A common use case to use JITR instead of JITP, is when you may want to enrich or check your device provisioning flow against another data source before the certificate is activated, e.g. Database table.  
 
-###JITR provisioning flow
+### JITR provisioning flow
 Below is the flow diagram which the JITR methods uses. Notice that in this flow relies on a registered certificate authority and a Unique device/client certificate that is signed by it. In this example you will also can make use of other AWS service or even external APIs for extra validation, we will be exemplifying with DynamoDB. 
 
 ![JITR flow](/assets/jitr-flow.png)
@@ -58,7 +58,7 @@ In the directory **/jitr-lambda-example** you can find the **lambda_function.py*
 
 Before deploying the lambda function, we must create a Lambda execution role. [Read about how to scope AWS Lambda execution roles](https://docs.aws.amazon.com/lambda/latest/operatorguide/least-privilege.html#). For this particular role, we need to execute action in AWS IoT Core, AWS CloudWatch and AWS DynamoDB. In a production environment you must scope your role permission down to the least needed privileges, which will be reflected by the actions executed in your Lambda function. For this particular example, you will find a policy **/jitr-lambda-function/lambda-execution-role-policy.json** that has been designed with the least privileges for the example **lambda_function.py**. Keep in mind that if you decide to customize the example for testing, you must make sure the policy meets your requeriments.
 
-Run the following commands to create the Lamnbda execution role:
+Run the following commands to create the Lambda execution role:
 
 ```
 ```

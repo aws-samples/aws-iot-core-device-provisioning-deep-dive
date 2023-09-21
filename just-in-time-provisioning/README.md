@@ -8,7 +8,7 @@ Just in time provisioning has a dependency on using a private certificate author
 
 The flow diagram below explains each action that happens in a JITP provisioning flow, note that some of those are not part of the flow itself, but actions that have to be done by a security administrator and manufacturing prior to the first connection. 
 
-###JITP provisioning flow
+### JITP provisioning flow
 
 
 ![JITP flow](/assets/jitp-flow.png)
