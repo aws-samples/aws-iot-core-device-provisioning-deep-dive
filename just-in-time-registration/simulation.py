@@ -27,29 +27,40 @@ import os
 import logging
 import shutil
 import sys
-
+import json
+import boto3
+import uuid
 
 #Pass argument into variables usin arparse Lib
 try:
     # Pass arguments into variables using argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-e", "--endpoint", action="store", required=True, dest="endpoint", help="regional AWS IoT Core AT endpoint")
-    parser.add_argument("-n", "--fleetsize", action="store", required=True, dest="fleetsize", help="Numbers of devices on the simulated fleet")
-    
+    parser = argparse.ArgumentParser(description="Simulate a fleet of devices in AWS IoT Core")
+    parser.add_argument("-e", "--endpoint", action="store", required=True, dest="endpoint", help="Regional AWS IoT Core endpoint")
+    parser.add_argument("-n", "--fleetsize", action="store", required=True, dest="fleetsize", type=int, help="Number of devices in the simulated fleet")
+    parser.add_argument("--aws_access_key_id", action="store", required=True, dest="key_id", help="AWS access key ID")
+    parser.add_argument("--aws_secret_access_key", action="store", required=True, dest="secret_key", help="AWS secret access key")
+    parser.add_argument("--region_name", action="store", required=True, dest="region", help="AWS region name")
+
     args = parser.parse_args()
     endpoint = args.endpoint
-    number_of_devices = int(args.fleetsize)
+    number_of_devices = args.fleetsize
+    # Define your AWS credentials and region (modify as needed)
+    aws_access_key_id = args.key_id
+    aws_secret_access_key = args.secret_key
+    region_name = args.region
 
-    # Continue with your script logic here
+    # Define Endpoint and number of devices
     print("Endpoint:", endpoint)
     print("Number of Devices:", number_of_devices)
-    
+
 except argparse.ArgumentError as e:
     print("Error:", e)
     print("Please provide the required arguments.")
+    parser.print_help()
 except ValueError as e:
     print("Error:", e)
     print("Invalid value provided for fleetsize. Please provide a valid integer.")
+    parser.print_help()
 except Exception as e:
     print("An error occurred:", e)
 
@@ -136,6 +147,90 @@ def set_environment_variable(variable_name, value):
         print(f"Error setting environment variable: {e}")
         logger.error(f"Error setting environment variable: {e}")
 
+#Define function to generate serial numbers
+def generate_serial_numbers_file(file_path, num_serial_numbers):
+    serial_numbers = [uuid.uuid4().int for _ in range(num_serial_numbers)]
+
+    data = {"serial_numbers": serial_numbers}
+
+    try:
+        with open(file_path, "w") as json_file:
+            json.dump(data, json_file, indent=4)
+        print(f"Serial numbers file generated at {file_path}")
+        logger.info(f"Serial numbers file generated at {file_path}")
+        return data
+    except Exception as e:
+        print(f"Error generating serial numbers file: {e}")
+        logger.error(f"Error generating serial numbers file: {e}")
+
+# Define function to create DynamoDB table and add items
+def create_dynamodb_table(data):
+    try:
+        # Extract the serial numbers from the data
+        serial_numbers = data["serial_numbers"]
+
+        # Define the table name
+        table_name = "SerialNumbers"
+
+        # Check if the table already exists
+        table_exists = False
+        try:
+            dynamodb.describe_table(TableName=table_name)
+            table_exists = True
+            print(f"DynamoDB table '{table_name}' already exists.")
+        except dynamodb.exceptions.ResourceNotFoundException:
+            pass
+
+        if not table_exists:
+            # Define the table schema
+            key_schema = [
+                {
+                    "AttributeName": "serialNumber",
+                    "KeyType": "HASH"  # Hash key (primary key)
+                }
+            ]
+
+            attribute_definitions = [
+                {
+                    "AttributeName": "serialNumber",
+                    "AttributeType": "S"  # String attribute type for serialNumber
+                }
+            ]
+
+            # Create the DynamoDB table with on-demand capacity
+            dynamodb.create_table(
+                TableName=table_name,
+                KeySchema=key_schema,
+                AttributeDefinitions=attribute_definitions,
+                BillingMode='PAY_PER_REQUEST'  # Use on-demand capacity
+            )
+
+            print(f"DynamoDB table '{table_name}' created successfully.")
+
+            # Wait for the table to become active
+            waiter = dynamodb.get_waiter('table_exists')
+            waiter.wait(
+                TableName=table_name,
+                WaiterConfig={
+                    'Delay': 5,
+                    'MaxAttempts': 20
+                }
+            )
+
+        # Add items to the table
+        for serial_number in serial_numbers:
+            dynamodb.put_item(
+                TableName=table_name,
+                Item={
+                    "serialNumber": {"S": str(serial_number)},  # Store serialNumber as a String
+                    "AnyCompany": {"S": "AnyCompany"}  # Modify with the appropriate company name
+                }
+            )
+
+        print(f"Items added to DynamoDB table '{table_name}'.")
+    except Exception as e:
+        print(f"Error creating DynamoDB table: {e}")
+
 #Define function to run docker-compose
 def run_docker_compose(command):
     try:
@@ -183,5 +278,12 @@ set_environment_variable('IOT_ENDPOINT', endpoint)
 copy_file('rootCA.pem', './cert_signing_service/certs', stop_on_error=True)
 copy_file('rootCA.key', './cert_signing_service/certs', stop_on_error=True)
 
+#Generate serial numbers
+serialnumbers=generate_serial_numbers_file('./cert_signing_service/serial_numbers.json', number_of_devices)#Saves the file to the cert signing service dir
+
+#Creates dynamoDB table with serial numbers 
+#Create a DynamoDB client
+dynamodb = boto3.client('dynamodb', region_name=region_name, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
+create_dynamodb_table(serialnumbers)
 #run docker-compose
 run_docker_compose(f"up -d --scale iot-client={number_of_devices}")

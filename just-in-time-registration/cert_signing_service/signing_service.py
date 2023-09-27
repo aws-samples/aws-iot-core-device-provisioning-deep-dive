@@ -19,8 +19,6 @@
 # opensource-codeofconduct@amazon.com with any additional questions or comments.
 
 
-
-
 #This code starts a web server that receives a CSR from secure network and returns a signed certificate.
 #The Web server makes use of OpenSSL to sign the CSR, using the root CA certificate. Then returns the signed
 #to requester. There are no authenticaiton mechanisms implemented, this is a simulation of an isolated network.
@@ -31,8 +29,8 @@ import socketserver
 from OpenSSL import crypto
 from pathlib import Path
 import logging
-import uuid
-import os
+import json
+
 
 # Define working path
 working_path = Path(__file__).resolve().parent
@@ -47,6 +45,28 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+#Define function to load serialNumbers from file into memory
+def load_serial_numbers_from_file(file_path):
+    try:
+        with open(file_path, "r") as json_file:
+            data = json.load(json_file)
+            logging.info(f"Loaded serial numbers from file: {file_path}")
+            return data
+    except Exception as e:
+        # Handle any exceptions, e.g., file not found or JSON parsing error
+        print(f"Error loading serial numbers: {e}")
+        logging.error(f"Error loading serial numbers: {e}")
+        return {}
+# Define a global variable to keep track of the used serial numbers
+used_serial_numbers = set()
+
+# Usage example:
+file_path = "serial_numbers.json"
+serial_numbers_data = load_serial_numbers_from_file(file_path)
+print(serial_numbers_data)
+
+
+# Describe class to handle CSR requests
 # Describe class to handle CSR requests
 class CSRHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
@@ -70,14 +90,28 @@ class CSRHandler(http.server.BaseHTTPRequestHandler):
             csr = crypto.load_certificate_request(crypto.FILETYPE_PEM, csr_data)
             csr_subject = csr.get_subject()
 
-            #Generate Serial number for the certificate
-            serial_number = uuid.uuid4().int
+            # Get the next available serial number from the list
+            serial_numbers_data = load_serial_numbers_from_file(f"{working_path}/serial_numbers.json")
+            serial_numbers = serial_numbers_data.get("serial_numbers", [])
+
+            serial_number = None
+            while serial_numbers:
+                potential_serial = serial_numbers[0]
+                if potential_serial not in used_serial_numbers:
+                    serial_number = potential_serial
+                    used_serial_numbers.add(serial_number)
+                    break
+                else:
+                    serial_numbers.pop(0)
+
+            if serial_number is None:
+                raise Exception("No more serial numbers available.")
 
             # Create a new certificate
             signed_cert = crypto.X509()
             signed_cert.set_subject(csr_subject)
             signed_cert.set_pubkey(csr.get_pubkey())
-            signed_cert.set_serial_number(serial_number)  
+            signed_cert.set_serial_number(serial_number)
             signed_cert.gmtime_adj_notBefore(0)
             signed_cert.gmtime_adj_notAfter(365 * 24 * 60 * 60)  # 1 year validity
             signed_cert.set_issuer(ca_cert.get_subject())

@@ -1,0 +1,10 @@
+{
+    "sql": "SELECT * FROM '$aws/events/certificates/registered/#'",
+    "ruleDisabled": false,
+    "awsIotSqlVersion": "2016-03-23",
+    "actions": [{
+        "lambda": {
+            "functionArn": "arn:aws:lambda:<REGION>:<ACCOUNT ID>:function:jitr-example-lambda"
+        }
+    }]
+  }
