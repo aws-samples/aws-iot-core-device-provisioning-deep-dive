@@ -8,8 +8,9 @@ Just in time registration has a dependency on using a private certificate author
 The flow diagram below explains each action that happens in a JITR provisioning flow, note that some of those are not part of the flow itself, but actions that have to be done by a security administrator and manufacturing prior to the first connection. 
 
 **JITP vs JITR**
+
 Before diving deeper on JITR, it is important that you also familiarize yourself with Just-In-Time-Provisionig.
-The JITR flow relies on an AWS Lambda function to provision AWS IoT resources. Because a Lambda function is used in this method, JITR is a much more flexible provisioning method than [JITP](https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive/tree/main/just-in-time-provisioning). However, JITP is a much streamlined provisioning method which does not require an External lambda function to be designed, and it should be used if it meets your application requirements. 
+The JITR flow relies on an AWS Lambda function to provision AWS IoT resources. Because a Lambda function is used in this method, JITR is a much more flexible provisioning method than [JITP](https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive/tree/main/just-in-time-provisioning). However, JITP is a much streamlined provisioning method which does not require an External lambda function to be designed, and it a good option if it meets your application requirements. 
 A common use case to use JITR instead of JITP, is when you may want to enrich or check your device provisioning flow against another data source before the certificate is activated, e.g. Database table.  
 
 ### JITR provisioning flow
@@ -50,10 +51,9 @@ During the provisioning flow the Lambda function will be invoked by an [AWS IoT 
 ```
 This message is published to the reserved topic Certificate anytime an unregistered certificate signed by a Certificate Authority registered in AWS IoT Core attempts to connect. The certificates will be auto registered (if "auto-registration" on) and will remain on a **pending_activation** status until the provisioning flow is completed. In the case of JITR it will be completed by a Lambda function that can perform actions on AWS IoT Core.
 
-###Designing an AWS IoT Core JITR Lambda Function.
+### Designing an AWS IoT Core JITR Lambda Function.
 When designing a Lambda function for JITR you must follow the same [best practices of designing any Lambda function](https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html). Since JITR leverages a Private Certificate Authority, and uniquely generate and signed client certificate, it is a common practice to leverage the information in the client certificate during the creation of AWS IoT Resources, by extracting a serial number from the certificate and assigning it to an attribute on the AWS IoT Core registry for example. 
 
-### Designing the JITR Lambda function
 In the example Lambda function used in this simulation, you will make use of a [Python Crypto library](https://pypi.org/project/pycrypto/) to extract the Certificate Serial Number and Distinguished name information from the provided client certificate. In order properly deploy this Lambda function with its dependencies, you can use the [AWS ToolKit for VS code](https://aws.amazon.com/visualstudio/) or [AWS Cloud9](https://aws.amazon.com/cloud9/) which already come with toolkit integrated. Optionally you can also work with [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html). **In this example I will be using an AWS Lambda Layer.**
 
 In the directory **/jitr-lambda-example** you can find the **lambda_function.py** which was designed with Python **boto3** and **pyOpenSSL** libraries. You will also find the necessary resources to create the custom Lambda Layer.
