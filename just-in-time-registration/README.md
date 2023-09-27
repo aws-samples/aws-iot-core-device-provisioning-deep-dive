@@ -209,6 +209,7 @@ aws iot create-topic-rule \
 
 
 * **Now sign the Certificate with the key**
+      
       ```
       openssl x509 -req -days 3650 -extfile rootCA_openssl.conf -extensions v3_ca -in rootCA.csr -signkey rootCA.key -out rootCA.pem
       ```
