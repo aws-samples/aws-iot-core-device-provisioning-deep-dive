@@ -173,7 +173,7 @@ aws iot create-billing-group --billing-group-name AnyCompany
 ```
 ### Creating the IoT Rule for JITR
 The last resource that must be in place before your Private CA and the simulation is an [AWS IoT rule](https://docs.aws.amazon.com/iot/latest/developerguide/iot-rules.html). The Rule subscription will listen to the **$aws/events/certificates/registered/caCertificateId** topic, and trigger the JITR example lambda function anytime a new registration is published. 
-To create the AWS IoT Rule inspect the **jitr_iot_rule.json**, replace where you see <REGION>:<ACCOUNT ID> and run the command below:
+To create the AWS IoT Rule inspect the **jitr_iot_rule.json**, replace where you see < REGION >:< ACCOUNT ID > and run the command below:
 
 ```
 aws iot create-topic-rule \
@@ -261,12 +261,12 @@ For this next step you will be creating a Simulation fleet using Docker containe
    *  As the containers start, they will self generate unique Certificate Keys, and request the signing_service.py for a CA signature. **Note:** This is an example of how certificates can be signed on a secure and completely isolated network, do not replicate this method without proper understanding of manufacturing with x509 certificates. 
    *  With a signed certificate each container will connect to AWS IoT Core and start the JITP flow, they will then successfully connect and publish messages, on the AnyCompany/serialNumber/telemetry
 
-![deep-dive-jitr.drawio](/assets/deep-dive-jitp.png)
+![deep-dive-jitr.drawio](/assets/deep-dive-jitr.png)
 
    Simply start the simulation with ENDPOINT and desire Fleet size (Max 20 device change at your own risk!). 
 
    ```
-   Python3 simulation.py -e <YOUR-IOT-CORE-ATS_ENDPOINT> -n <NUMBER-OF-DEVICES>
+   Python3 simulation.py -e <YOUR-IOT-CORE-ATS_ENDPOINT> -n <NUMBER-OF-DEVICES> --aws_access_key_id <ACCESS-KEY-ID> --aws_secret_access_key <SECRET-KEY> --region_name <REGION>
    ```
 
 ### Troubleshooting 
