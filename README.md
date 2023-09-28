@@ -20,8 +20,8 @@ Each one of those methods will be suitable to a specific use case, which is usua
 Once you have read and understood the links above, identify below which use case you would like to explore first. Each use case below is linked to its own directory in this repository where you can find the documentation on how to use it. The use cases exemplified below are built using one of the above AWS IoT Core provisioning features, and reflect diferent challenge/solutions that have been requested by our customers. Please bookmark this repository as more use case will be published here as needed, also feel free to reach out with ideas!
 
 ## Use case examples
-[Just in Time Provisioning](https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive/tree/main/just-in-time-provisioning)
-[Just in Time Registration](https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive/tree/main/just-in-time-registration)
+* [Just in Time Provisioning](https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive/tree/main/just-in-time-provisioning)
+* [Just in Time Registration](https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive/tree/main/just-in-time-registration)
 
 
 
