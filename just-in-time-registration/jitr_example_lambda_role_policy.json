@@ -16,7 +16,7 @@
 				"iot:AttachPrincipalPolicy",
 				"iot:AttachPolicy"
 			],
-			"Resource": "arn:aws:iot:us-west-2:404125507795:*"
+			"Resource": "arn:aws:iot:<REGION>:<ACCOUNT ID>:*"
 		},
 		{
 			"Sid": "CloudWatchLogs",
@@ -25,7 +25,7 @@
 			    "logs:CreateLogGroup",
 				"logs:CreateLogStream",
 				"logs:PutLogEvents"],
-			"Resource": ["arn:aws:logs:us-west-2:404125507795:*"]
+			"Resource": ["arn:aws:logs:<REGION>:<ACCOUNT ID>:*"]
 		},
 		{
 			"Sid": "DynamoDB",
@@ -34,7 +34,7 @@
 			    "dynamodb:Query",
 				"dynamodb:GetItem",
 				"dynamodb:GetRecords"],
-			"Resource": "arn:aws:dynamodb:us-west-2:404125507795:table/SerialNumbers"
+			"Resource": "arn:aws:dynamodb:<REGION>:<ACCOUNT ID>:table/SerialNumbers"
 		}
 	]
 }
