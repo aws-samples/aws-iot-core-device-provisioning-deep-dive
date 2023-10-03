@@ -1,0 +1,75 @@
+{
+  "Parameters": {
+    "AWS::IoT::Certificate::Id": {
+      "Type": "String"
+    },
+    "AWS::IoT::Certificate::CommonName": {
+      "Type": "String"
+    },
+    "AWS::IoT::Certificate::SerialNumber": {
+      "Type": "String"
+    },
+    "AWS::IoT::Certificate::DistinguishedNameQualifier": {
+      "Type": "String"
+    },
+    "AWS::IoT::Certificate::OrganizationalUnit": {
+      "Type": "String",
+      "Default": "unclaimed"
+    },
+    "AWS::IoT::Certificate::Organization": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "thing": {
+      "Type": "AWS::IoT::Thing",
+      "Properties": {
+        "ThingName": {
+          "Ref": "AWS::IoT::Certificate::SerialNumber"
+        },
+        "AttributePayload": {
+          "hardwareVersion": {
+            "Ref": "AWS::IoT::Certificate::CommonName"
+          },
+          "serialNumber": {
+            "Ref": "AWS::IoT::Certificate::SerialNumber"
+          },
+          "provisioning": "JITP",
+          "softwareVersion": "SW-100",
+          "CA": "IoT-Device-RootCA"
+        },
+        "ThingTypeName": {
+          "Ref": "AWS::IoT::Certificate::DistinguishedNameQualifier"
+        },
+        "ThingGroups": [
+          {
+            "Ref": "AWS::IoT::Certificate::OrganizationalUnit"
+          }
+        ],
+        "BillingGroup": {
+          "Ref": "AWS::IoT::Certificate::Organization"
+        }
+      },
+      "OverrideSettings": {
+        "AttributePayload": "REPLACE",
+        "ThingTypeName": "REPLACE",
+        "ThingGroups": "REPLACE"
+      }
+    },
+    "certificate": {
+      "Type": "AWS::IoT::Certificate",
+      "Properties": {
+        "CertificateId": {
+          "Ref": "AWS::IoT::Certificate::Id"
+        },
+        "Status": "ACTIVE"
+      }
+    },
+    "policy": {
+      "Type": "AWS::IoT::Policy",
+      "Properties": {
+        "PolicyName": "AnyTypeThing-policy"
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "IoTCore",
+			"Effect": "Allow",
+			"Action": [
+				"iot:CreateThing",
+				"iot:ListCertificates",
+				"iot:DescribeCertificate",
+				"iot:AddThingToBillingGroup",
+				"iot:AddThingToThingGroup",
+				"iot:UpdateCertificate",
+				"iot:UpdateThing",
+				"iot:AttachThingPrincipal",
+				"iot:AttachPrincipalPolicy",
+				"iot:AttachPolicy"
+			],
+			"Resource": "arn:aws:iot:<REGION>:<ACCOUNT ID>:*"
+		},
+		{
+			"Sid": "CloudWatchLogs",
+			"Effect": "Allow",
+			"Action": [
+			    "logs:CreateLogGroup",
+				"logs:CreateLogStream",
+				"logs:PutLogEvents"],
+			"Resource": ["arn:aws:logs:<REGION>:<ACCOUNT ID>:*"]
+		},
+		{
+			"Sid": "DynamoDB",
+			"Effect": "Allow",
+			"Action": [
+			    "dynamodb:Query",
+				"dynamodb:GetItem",
+				"dynamodb:GetRecords"],
+			"Resource": "arn:aws:dynamodb:<REGION>:<ACCOUNT ID>:table/SerialNumbers"
+		}
+	]
+}

@@ -1,0 +1,30 @@
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+
+# Ignore virtual environment
+venv/
+*.cfg
+*/lib
+*/bin
+*/include
+
+# Ignore IDE-specific files
+.vscode/
+
+# Ignore CSR PEM and key files
+*.csr
+*.key
+*.pem
+*.crt
+*.srl
+
+#Ignore logs
+*.log
+*/logs
+
+#Mac files
+.DS_Store
+
+#vscode
+.vscode
