@@ -37,6 +37,15 @@ fi
 export AWS_ACCOUNT_ID="$aws_account"
 export AWS_DEFAULT_REGION="$aws_region"
 
+#Create ENV variable for bucket name
+export BUCKET_NAME=iotcorebulkregistrationtaskbucket${AWS_ACCOUNT_ID}
+#Create the Amazon S3 bucket for the bulk registration task
+#US EAST 1 is my default location, change as needed 
+aws s3api create-bucket \
+	--bucket iotcorebulkregistrationtaskbucket${AWS_ACCOUNT_ID} \
+	--region us-east-1 \ 
+	--acl private  && print_success "S3 bucket created succesfully - us-east-1" || print_error_and_exit "Failed to create S3 bucket - (Hint check your Global S3 region)" 
+
 # Create Thing Types
 aws iot create-thing-type --thing-type-name ThingTypeA && print_success "ThingTypeA created" || print_error_and_exit "Failed to create ThingTypeA"
 aws iot create-thing-type --thing-type-name ThingTypeB && print_success "ThingTypeB created" || print_error_and_exit "Failed to create ThingTypeB"
@@ -109,25 +118,51 @@ aws iot create-policy \
 #we recommend you start from that one and trim it to the least needed privileges for your provisioning method. 
 
 #For this example project you can just execute the commands below as is:
-
-aws iam create-role \
+# Creating the bulk registration task role
+# Execute the command to create the role and capture the role ARN
+role_arn=$(aws iam create-role \
     --role-name iot-core-provisioning-role \
     --assume-role-policy-document file://aws_iot_trust_policy.json \
-    --description "Role for IoT Core Provisioning" && print_success "IoT Core Provisioning Role created" || print_error_and_exit "Failed to create IoT Core Provisioning Role"
+    --description "Role for IoT Core Provisioning" \
+    --query 'Role.Arn' \
+    --output text)
 
+# Check if the role creation was successful
+if [ $? -eq 0 ]; then
+    print_success "IoT Core Provisioning Role created. Role ARN: $role_arn"
+
+#Finnaly we need to attach a permission to the role which allows the access to the S3 bucket
+    # Create inline policy to allow full access to S3 buckets
+    aws iam put-role-policy \
+        --role-name iot-core-provisioning-role \
+        --policy-name S3FullAccessPolicy \
+        --policy-document '{
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": "s3:*",
+                    "Resource": arn:aws:s3:::${BUCKET_NAME}"
+                }
+            ]
+        }'
+    if [ $? -eq 0 ]; then
+        print_success "Inline policy 'S3FullAccessPolicy' added to allow full access to S3 bucket ${BUCKET_NAME}."
+    else
+        print_error_and_exit "Failed to add inline policy for S3 full access."
+    fi
+
+else
+    print_error_and_exit "Failed to create IoT Core Provisioning Role."
+fi
+
+# Set the role ARN as an environment variable
+export PROVISIONING_ROLE_ARN="$role_arn"
+
+# Attach the policy to the role, this policy is fro IoT registration things
 aws iam attach-role-policy \
     --role-name iot-core-provisioning-role \
     --policy-arn arn:aws:iam::aws:policy/service-role/AWSIoTThingsRegistration && print_success "Policy attached to IoT Core Provisioning Role" || print_error_and_exit "Failed to attach policy to IoT Core Provisioning Role"
-
-#Create the Amazon S3 bucket for the bulk registration task
-#US EAST 1 is my default location, change as needed 
-aws s3api create-bucket \
-	--bucket iotcorebulkregistrationtaskbucket${AWS_ACCOUNT_ID} \
-	--region us-east-1 \ 
-	--acl private  && print_success "S3 bucket created succesfully - us-east-1" || print_error_and_exit "Failed to create S3 bucket - (Hint check your Global S3 region)" 
-
-#Create ENV variable for bucket name
-export BUCKET_NAME=iotcorebulkregistrationtaskbucket${AWS_ACCOUNT_ID}
 
 #END
 print_success "Bootstrap complete check bootstrap.log for more details" />"

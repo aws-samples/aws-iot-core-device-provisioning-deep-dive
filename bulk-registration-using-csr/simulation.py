@@ -161,6 +161,38 @@ def build_parameters_and_save(ThingTypeName_list, ThingGroups_name, countryOrigi
         print(f"ERROR - Error building parameters and saving to file: {e}")
         logging.error(f"Error building parameters and saving to file: {e}")
         return None
+        
+#Defines function to CP to a S3 bucket
+#bucket name is saved to a ENV variable during the bootstrap script
+def put_object_to_s3_bucket(bucket_name, source_file):
+    try:
+        subprocess.run(["aws", "s3", "cp", source_file, f"s3://{bucket_name}/"])
+        print(f"INFO - {source_file} copied to S3 bucket: {bucket_name}")
+        logging.info(f"{source_file} copied to S3 bucket: {bucket_name}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e}")
+        logging.error(f"Error: {e}")
+        
+
+#Define start registration task function
+def start_thing_registration_task(template_body, input_file_bucket, input_file_key, role_arn):
+    try:
+        command = [
+            "start-thing-registration-task",
+            "--template-body", template_body,
+            "--input-file-bucket", input_file_bucket,
+            "--input-file-key", input_file_key,
+            "--role-arn", role_arn
+        ]
+
+        subprocess.run(command, check=True)
+        print("Thing registration task started successfully.")
+        logging.info("Thing registration task started successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e}")
+        logging.error(f"Error: {e}")
+        # Handle the error as needed
+
 
 
 # Main function to run the simulation based on argument input 
@@ -170,18 +202,10 @@ for _ in range(number_of_devices):
     # Optionally, you can use the 'run_result' for further processing or checks
 
 # Copy parameters.json to S3 bucket
-try:
-    s3_bucket_name = os.environ.get("BUCKET_NAME")
-    if s3_bucket_name:
-        subprocess.run(["aws", "s3", "cp", "./parameters.json", f"s3://{s3_bucket_name}/"])
-        print(f"INFO - Parameters.json copied to S3 bucket: {s3_bucket_name}")
-        logging.info(f"Parameters.json copied to S3 bucket: {s3_bucket_name}")
-    else:
-        print("Error: BUCKET_NAME environment variable is not set.")
-        logging.error("Error: BUCKET_NAME environment variable is not set.")
-except Exception as e:
-    print(f"Error: {e}")
-    logging.error(f"Error: {e}")
+send_to_s3 = put_object_to_s3_bucket(os.environ.get("BUCKET_NAME"), "parameters.json")
+
+#Run bulk registration task in AWS IoT Core
+start_bulk_registration = start_thing_registration_task("bulk_registration_template.json", os.environ.get("BUCKET_NAME"), "parameters.json", os.environ.get("ROLE_ARN"))  
     
     
     #END
