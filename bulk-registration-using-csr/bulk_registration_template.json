@@ -1,0 +1,73 @@
+{
+  "Parameters" : {
+      "ThingName" : {
+          "Type" : "String"
+      },
+      "SerialNumber" : {
+          "Type" : "String"
+      },
+      "countryOrigin" : {
+          "Type" : "String",
+          "Default" : "US"
+      },
+      "ThingGroup" : {
+        "Type" : "String",
+        "Default" : "unclaimed"
+      },
+      "ThingTypeName" : {
+        "Type" : "String"
+      },
+      "licenseType" : {
+        "Type" : "String"
+      },
+      "businessUnitMaker" : {
+        "Type" : "String"
+      },
+      "hardwareVersion" : {
+        "Type" : "String"
+      },
+      "softwareVersion" : {
+        "Type" : "String"
+      },
+        "CSR" : {
+        "Type" : "String"    
+        }
+  },
+  "Resources" : {
+      "thing" : {
+          "Type" : "AWS::IoT::Thing",
+          "Properties" : {
+              "ThingName" : {"Ref" : "ThingName"},
+              "AttributePayload" : { 
+              "hardwareVersion" : {"Ref": "hardwareVersion"},
+              "softwareVersion" : {"Ref": "hardwareVersion"}, 
+              "serialNumber" :  {"Ref" : "SerialNumber"},
+              "countryOrigin": {"Ref": "countryOrigin"},
+              "businessUnitMaker": {"Ref": "businessUnitMaker"},
+              "licenseType": {"Ref": "licenseType"},
+              "provisioning": "bulkRegistration"
+            }, 
+              "ThingTypeName" : {"Ref": "ThingTypeName"},
+              "ThingGroups" : [{"Ref": "ThingGroup"}],
+              "BillingGroup" : {"Ref": "businessUnitMaker"}
+          }
+      },
+      "certificate" : {
+          "Type" : "AWS::IoT::Certificate",
+          "Properties" : {
+              "CertificateSigningRequest": {"Ref" : "CSR"},
+              "Status" : "ACTIVE"      
+          }
+      },
+      "policy" : {
+          "Type" : "AWS::IoT::Policy",
+          "Properties" : {
+              "PolicyName" :"AnyTypeThing-policy" 
+          }
+      }
+  }
+}
+
+
+
+

@@ -228,7 +228,7 @@ def lambda_handler(event, context):
     region = os.environ["AWS_REGION"]
     Logger.info("region: {}".format(region))
 
-    #REMOVE LATER
+    #PRE DEFINE RESOURCES 
     table_name = 'SerialNumbers' #Table name where the allowed seriaNumbers, this resource is pre cereated during walkthrough
     policyName = 'AnyTypeThing-policy' #Policy to be used by devices provisioned with JITR
     

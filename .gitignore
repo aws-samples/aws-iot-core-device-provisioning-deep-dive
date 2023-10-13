@@ -12,12 +12,14 @@ venv/
 # Ignore IDE-specific files
 .vscode/
 
-# Ignore CSR PEM and key files
+# Ignore CSR PEM and key files(and JSON stores)
 *.csr
 *.key
 *.pem
 *.crt
 *.srl
+KeyStore.json
+CSRStore.json
 
 #Ignore logs
 *.log
