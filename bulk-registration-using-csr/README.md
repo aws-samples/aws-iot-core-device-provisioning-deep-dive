@@ -27,7 +27,7 @@ In the flow below you can understand the process of which you will be learning i
 
 Clone the repository and navigate to the just in time registration directory.
 ```
-git clone https://github.com/aws-samples/aws-iot-core-device-provisioning-deep-dive.git
+git clone https://github.com/aws-samples/bulk-registration-using-csr
 cd aws-iot-core-device-provisioning-deep-dive/bulk-registration-using-csr
 ```
 **This will be your work directory from this point**
@@ -136,56 +136,12 @@ Run the commands below:
 chmod +x bootstrap.sh
 ./bootstrap.sh 
 ```
-Enter your **Account ID** and **Region** 
-It is recommended that you explore the **bootstrap.sh** and understand which AWS CLI commands are being invoked.### Defining the IoT policy for provisioned devices
-There are many strategies to accomplish best practices when creating IoT policies to be use by fleets of devices. Similar to an IAM policy, IoT policies also support policy variables, and that very efficient way to scale securely. 
-In the demonstration policy below you will scope a policy with the least privileges for this educational project. 
-
-```json
-{
-	"Version": "2012-10-17",
-	"Statement": [
-	  {
-		"Condition": {
-		  "Bool": {
-			"iot:Connection.Thing.IsAttached": "true"
-		  }
-		},
-		"Effect": "Allow",
-		"Action": "iot:Connect",
-		"Resource": "arn:aws:iot:<YOUR-REGION>:<ACCOUNT-ID>:client/${iot:Connection.Thing.ThingName}"
-	  },
-	  {
-		"Effect": "Allow",
-		"Action": "iot:Publish",
-		"Resource": "arn:aws:iot:<YOUR-REGION>:<ACCOUNT-ID>:topic/AnyCompany/${iot:Connection.Thing.ThingName}/telemetry"
-	  },
-	  {
-		"Effect": "Allow",
-		"Action": "iot:Subscribe",
-		"Resource": "arn:aws:iot:<YOUR-REGION>:<ACCOUNT-ID>:topicfilter/AnyCompany/${iot:Connection.Thing.ThingName}/telemetry"
-	  },
-	  {
-		"Effect": "Allow",
-		"Action": "iot:Receive",
-		"Resource": "arn:aws:iot:<YOUR-REGION>:<ACCOUNT-ID>:topic/AnyCompany/${iot:Connection.Thing.ThingName}/telemetry"
-	  }
-	]
-  }
-```
-The **AnyTypeThing_policy_document.json** has already been created in this directory, Please modify where you see < >.
-
-Then run the command below: 
-```
-aws iot create-policy --policy-name AnyTypeThing-policy --policy-document file://any_type_thing_policy.json
-```
-
 ### Simulating a Bulk-registration task
 Below you can have a look at the simulation diagram:
   1- The Simulation.py script will create a set of x509 keys and certificates signing requests from the keys. THe keys and CSRs will be stored on CSR_store.json and Key_store.json if you wish to further this simulation and simulate devices connecting to AWS IoT Core.**Important**, keeping Private keys on a JSON file is not a best practices, we are using this method with an educational purpose, please consult the main page on this repository where you can learn more about manufacturing with x509 certificates. 
   2- Simulation.py will use the CSR list to create the parameters.
   3- Generates parameters.json and store it to a S3 bucket (bucket has been created during bootstrap, bulkregistrationtasks< accountID >).
-  4- Cals the Bulk -registration api - aws iot start-registration-task.
+  4- Calls the Bulk -registration api - aws iot start-registration-task.
   5- Your things will be registered in AWS IoT Core, you can now inspect the registration task and download the result logs containing the Signed- certs
 
 ![simulation flow](/assets/bulk-registration-simulation-flow.png)
@@ -201,7 +157,7 @@ In this console menu you can see all registration tasks and their current status
 
 ![registration task](/assets/registration-task.png)
 
-Optionally you can use the [Describe thing registration API call](https://awscli.amazonaws.com/v2/documenthttps://awscli.amazonaws.com/v2/documentation/api/latest/reference/iot/list-thing-registration-task-reports.htmlation/api/latest/reference/iot/describe-thing-registration-task.html), and the [registration report]() call to retrieve the log file.
+Optionally you can use the [Describe thing registration API call](https://awscli.amazonaws.com/v2/documenthttps://awscli.amazonaws.com/v2/documentation/api/latest/reference/iot/list-thing-registration-task-reports.htmlation/api/latest/reference/iot/describe-thing-registration-task.html), and the [registration report](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/iot/list-thing-registration-task-reports.html) call to retrieve the log file.
 
 ### Troubleshooting 
    * Use the log files. 

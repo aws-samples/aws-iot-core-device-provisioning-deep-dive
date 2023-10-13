@@ -21,6 +21,9 @@ venv/
 KeyStore.json
 CSRStore.json
 
+#Scripted generated files 
+parameters.json
+
 #Ignore logs
 *.log
 */logs

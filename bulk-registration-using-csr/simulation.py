@@ -27,6 +27,8 @@ from OpenSSL import crypto
 import json
 import logging
 import argparse
+import subprocess
+import os
 
 #Pass argument into variables usin arparse Lib
 try:
@@ -166,3 +168,20 @@ def build_parameters_and_save(ThingTypeName_list, ThingGroups_name, countryOrigi
 for _ in range(number_of_devices):
     run_result = build_parameters_and_save(ThingTypeName_list, ThingGroups_list, countryOrigin_list, licenseType_list)
     # Optionally, you can use the 'run_result' for further processing or checks
+
+# Copy parameters.json to S3 bucket
+try:
+    s3_bucket_name = os.environ.get("BUCKET_NAME")
+    if s3_bucket_name:
+        subprocess.run(["aws", "s3", "cp", "./parameters.json", f"s3://{s3_bucket_name}/"])
+        print(f"INFO - Parameters.json copied to S3 bucket: {s3_bucket_name}")
+        logging.info(f"Parameters.json copied to S3 bucket: {s3_bucket_name}")
+    else:
+        print("Error: BUCKET_NAME environment variable is not set.")
+        logging.error("Error: BUCKET_NAME environment variable is not set.")
+except Exception as e:
+    print(f"Error: {e}")
+    logging.error(f"Error: {e}")
+    
+    
+    #END

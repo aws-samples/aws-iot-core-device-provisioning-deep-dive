@@ -4,7 +4,7 @@
 log_file="bootstrap.log"
 
 # Create log file if it doesn't exist
-touch "$log_file"
+[ ! -f "$log_file" ] && touch "$log_file"
 
 # Function to print success message and log
 print_success() {
@@ -88,7 +88,13 @@ policy_content=$(cat <<EOF
 EOF
 )
 
-echo "$policy_content" > any_type_thing_policy.json && print_success "any_type_thing_policy.json created" || print_error_and_exit "Failed to create any_type_thing_policy.json"
+# Check if any_type_thing_policy.json exists
+if [ ! -f "any_type_thing_policy.json" ]; then
+    echo "$policy_content" > any_type_thing_policy.json && print_success "any_type_thing_policy.json created" || print_error_and_exit "Failed to create any_type_thing_policy.json"
+else
+    print_error_and_exit "any_type_thing_policy.json already exists. Aborting to prevent overwriting."
+fi
+
 
 #Create policy for all things to be provisioned
 aws iot create-policy \
@@ -112,3 +118,17 @@ aws iam create-role \
 aws iam attach-role-policy \
     --role-name iot-core-provisioning-role \
     --policy-arn arn:aws:iam::aws:policy/service-role/AWSIoTThingsRegistration && print_success "Policy attached to IoT Core Provisioning Role" || print_error_and_exit "Failed to attach policy to IoT Core Provisioning Role"
+
+#Create the Amazon S3 bucket for the bulk registration task
+#US EAST 1 is my default location, change as needed 
+aws s3api create-bucket \
+	--bucket iotcorebulkregistrationtaskbucket${AWS_ACCOUNT_ID} \
+	--region us-east-1 \ 
+	--acl private  && print_success "S3 bucket created succesfully - us-east-1" || print_error_and_exit "Failed to create S3 bucket - (Hint check your Global S3 region)" 
+
+#Create ENV variable for bucket name
+export BUCKET_NAME=iotcorebulkregistrationtaskbucket${AWS_ACCOUNT_ID}
+
+#END
+print_success "Bootstrap complete check bootstrap.log for more details" />"
+
