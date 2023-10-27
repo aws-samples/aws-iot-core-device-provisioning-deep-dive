@@ -34,17 +34,18 @@ if [[ -z "$aws_region" ]]; then
 fi
 
 # Set AWS account and region
-export AWS_ACCOUNT_ID="$aws_account"
-export AWS_DEFAULT_REGION="$aws_region"
+AWS_ACCOUNT_ID="$aws_account"
+AWS_DEFAULT_REGION="$aws_region"
 
-#Create ENV variable for bucket name
-export BUCKET_NAME=iotcorebulkregistrationtaskbucket${AWS_ACCOUNT_ID}
+#Create variable for bucket name
+BUCKET_NAME=iotcorebulkregistrationtaskbucket${AWS_ACCOUNT_ID}
+
 #Create the Amazon S3 bucket for the bulk registration task
 #US EAST 1 is my default location, change as needed 
 aws s3api create-bucket \
-	--bucket iotcorebulkregistrationtaskbucket${AWS_ACCOUNT_ID} \
-	--region us-east-1 \ 
-	--acl private  && print_success "S3 bucket created succesfully - us-east-1" || print_error_and_exit "Failed to create S3 bucket - (Hint check your Global S3 region)" 
+	--bucket "$BUCKET_NAME" \
+	--region us-east-1 \
+	--acl private && print_success "S3 bucket created successfully - us-east-1" || print_error_and_exit "Failed to create S3 bucket - (Hint check your Global S3 region)"
 
 # Create Thing Types
 aws iot create-thing-type --thing-type-name ThingTypeA && print_success "ThingTypeA created" || print_error_and_exit "Failed to create ThingTypeA"
@@ -59,7 +60,7 @@ aws iot create-thing-group --thing-group-name CustomerC && print_success "Custom
 aws iot create-thing-group --thing-group-name unclaimed && print_success "Unclaimed created" || print_error_and_exit "Failed to create Unclaimed"
 
 # Create Billing Group
-aws iot create-billing-group --billing-group-name AnyCompany && print_success "AnyCompany created" || print_error_and_exit "Failed to create AnyCompany"
+aws iot create-billing-group --billing-group-name AnyCompany && print_success "Billing group AnyCompany created" || print_error_and_exit "Failed to create AnyCompany"
 
 #Create anything policy for all things to be provisioned (in this simulation no thing will connect AWS IoT core, however the policy create here follows the best practices)
 # Create JSON document any_type_thing_policy.json
@@ -98,17 +99,29 @@ EOF
 )
 
 # Check if any_type_thing_policy.json exists
-if [ ! -f "any_type_thing_policy.json" ]; then
-    echo "$policy_content" > any_type_thing_policy.json && print_success "any_type_thing_policy.json created" || print_error_and_exit "Failed to create any_type_thing_policy.json"
-else
-    print_error_and_exit "any_type_thing_policy.json already exists. Aborting to prevent overwriting."
+if [ -f "any_type_thing_policy.json" ]; then
+    read -p "any_type_thing_policy.json already exists. Do you want to overwrite it? (y/n): " overwrite_confirmation
+    if [ "$overwrite_confirmation" != "y" ]; then
+        echo "Aborting to prevent overwriting."
+        exit 1
+    fi
 fi
 
+echo "$policy_content" > any_type_thing_policy.json && print_success "any_type_thing_policy.json created" || print_error_and_exit "Failed to create any_type_thing_policy.json"
 
-#Create policy for all things to be provisioned
+# Create policy for all things to be provisioned
 aws iot create-policy \
     --policy-name AnyTypeThing-policy \
     --policy-document file://any_type_thing_policy.json
+
+# Check the exit status of the last command
+if [ $? -eq 0 ]; then
+    print_success "Policy 'AnyTypeThing-policy' created successfully."
+else
+    print_warning "Failed to create policy 'AnyTypeThing-policy'. Continuing script execution."
+fi
+
+
 
 # Creating the bulk registration task role
 #This role is assumed by the AWS IoT Core task running your provisioning template. 
@@ -125,45 +138,67 @@ role_arn=$(aws iam create-role \
     --assume-role-policy-document file://aws_iot_trust_policy.json \
     --description "Role for IoT Core Provisioning" \
     --query 'Role.Arn' \
-    --output text)
+    --output text 2>&1)
 
 # Check if the role creation was successful
 if [ $? -eq 0 ]; then
     print_success "IoT Core Provisioning Role created. Role ARN: $role_arn"
-
-#Finnaly we need to attach a permission to the role which allows the access to the S3 bucket
-    # Create inline policy to allow full access to S3 buckets
-    aws iam put-role-policy \
-        --role-name iot-core-provisioning-role \
-        --policy-name S3FullAccessPolicy \
-        --policy-document '{
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Effect": "Allow",
-                    "Action": "s3:*",
-                    "Resource": arn:aws:s3:::${BUCKET_NAME}"
-                }
-            ]
-        }'
-    if [ $? -eq 0 ]; then
-        print_success "Inline policy 'S3FullAccessPolicy' added to allow full access to S3 bucket ${BUCKET_NAME}."
-    else
-        print_error_and_exit "Failed to add inline policy for S3 full access."
-    fi
-
 else
-    print_error_and_exit "Failed to create IoT Core Provisioning Role."
+    print_error_and_exit "Failed to create IoT Core Provisioning Role. Error: $role_arn"
 fi
 
-# Set the role ARN as an environment variable
-export PROVISIONING_ROLE_ARN="$role_arn"
+# Finally, we need to attach a permission to the role which allows access to the S3 bucket
+# Create inline policy to allow full access to the S3 buckets
+aws iam put-role-policy \
+    --role-name iot-core-provisioning-role \
+    --policy-name S3BucketAccessPolicy \
+    --policy-document '{
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": "s3:*",
+                "Resource": "arn:aws:s3:::'"${BUCKET_NAME}"'/*"
+            }
+        ]
+    }'
 
-# Attach the policy to the role, this policy is fro IoT registration things
+if [ $? -eq 0 ]; then
+    print_success "Inline policy 'S3FullAccessPolicy' added to allow full access to S3 bucket ${BUCKET_NAME}."
+else
+    print_error_and_exit "Failed to add inline policy for S3 full access."
+fi
+
+# Set the role ARN variable
+PROVISIONING_ROLE_ARN="$role_arn"
+
+# Attach the policy to the role, this policy is for IoT registration things
 aws iam attach-role-policy \
     --role-name iot-core-provisioning-role \
     --policy-arn arn:aws:iam::aws:policy/service-role/AWSIoTThingsRegistration && print_success "Policy attached to IoT Core Provisioning Role" || print_error_and_exit "Failed to attach policy to IoT Core Provisioning Role"
 
-#END
-print_success "Bootstrap complete check bootstrap.log for more details" />"
+# Function to save simulation variables to JSON file
+save_simulation_variables() {
+    local json_file="simulation_variables.json"
+    local json_content="{\"PROVISIONING_ROLE_ARN\":\"$PROVISIONING_ROLE_ARN\",\"BUCKET_NAME\":\"$BUCKET_NAME\"}"
 
+    echo "$json_content" > "$json_file"
+
+    if [ $? -eq 0 ]; then
+        print_success "Simulation variables saved to $json_file"
+    else
+        print_error_and_exit "Failed to save simulation variables to $json_file"
+    fi
+}
+
+# Check if the JSON file exists, create it if not
+if [ ! -f "simulation_variables.json" ]; then
+    touch "simulation_variables.json"
+fi
+
+# Save simulation variables to JSON file
+save_simulation_variables
+
+
+print_success "Bootstrap complete. Check bootstrap.log for more details"
+#END

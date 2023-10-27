@@ -23,6 +23,7 @@ CSRStore.json
 
 #Scripted generated files 
 parameters.json
+simulation_variables.json
 
 #Ignore logs
 *.log

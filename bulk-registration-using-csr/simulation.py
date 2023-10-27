@@ -162,8 +162,28 @@ def build_parameters_and_save(ThingTypeName_list, ThingGroups_name, countryOrigi
         logging.error(f"Error building parameters and saving to file: {e}")
         return None
         
+#Define function to retrieve values generate during the bootstrap.sh file execution
+def get_simulation_variables():
+    json_file = "simulation_variables.json"
+
+    try:
+        with open(json_file, "r") as file:
+            data = json.load(file)
+            print(f"INFO - Retrieved simulation variables from file: {json_file}")
+            logging.info(f"Retrieved simulation variables from file: {json_file}")
+            return data
+        
+    except FileNotFoundError:
+        print(f"Error: {json_file} not found.")
+        logging.error(f"Error: {json_file} not found.")
+        return None
+    except json.JSONDecodeError:
+        print(f"Error: Unable to parse {json_file}.")
+        logging.error(f"Error: Unable to parse {json_file}.")
+        return None
+
+
 #Defines function to CP to a S3 bucket
-#bucket name is saved to a ENV variable during the bootstrap script
 def put_object_to_s3_bucket(bucket_name, source_file):
     try:
         subprocess.run(["aws", "s3", "cp", source_file, f"s3://{bucket_name}/"])
@@ -178,7 +198,7 @@ def put_object_to_s3_bucket(bucket_name, source_file):
 def start_thing_registration_task(template_body, input_file_bucket, input_file_key, role_arn):
     try:
         command = [
-            "start-thing-registration-task",
+            "aws iot start-thing-registration-task",
             "--template-body", template_body,
             "--input-file-bucket", input_file_bucket,
             "--input-file-key", input_file_key,
@@ -194,18 +214,21 @@ def start_thing_registration_task(template_body, input_file_bucket, input_file_k
         # Handle the error as needed
 
 
-
 # Main function to run the simulation based on argument input 
 # Change this to the desired number of device to be registered
 for _ in range(number_of_devices):
     run_result = build_parameters_and_save(ThingTypeName_list, ThingGroups_list, countryOrigin_list, licenseType_list)
     # Optionally, you can use the 'run_result' for further processing or checks
 
+#retrieve simulation variables from bootstrap.sh execution
+simulation_variables = get_simulation_variables()
+print (f"Bucket name is{simulation_variables['BUCKET_NAME']}")
+print (f"Provisioning role ARN is{simulation_variables['PROVISIONING_ROLE_ARN']}")
+
 # Copy parameters.json to S3 bucket
-send_to_s3 = put_object_to_s3_bucket(os.environ.get("BUCKET_NAME"), "parameters.json")
+send_to_s3 = put_object_to_s3_bucket(simulation_variables["BUCKET_NAME"], "parameters.json")
 
 #Run bulk registration task in AWS IoT Core
-start_bulk_registration = start_thing_registration_task("bulk_registration_template.json", os.environ.get("BUCKET_NAME"), "parameters.json", os.environ.get("ROLE_ARN"))  
+start_bulk_registration = start_thing_registration_task("bulk_registration_template.json", simulation_variables["BUCKET_NAME"], "parameters.json", simulation_variables["PROVISIONING_ROLE_ARN"])
     
-    
-    #END
+#end
