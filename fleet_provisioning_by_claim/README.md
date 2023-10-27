@@ -1,5 +1,10 @@
 ## Fleet Provisioning by claim 
 
+
+
+# under construction do not use it
+
+
 In this section we will execute every step to configure AWS IoT core for fleet provisioning by claim. We will also simulate a fleet by using docker containers. Note this is a strictly educational project, and the example and samples utilized here should not be implemented into projects without changes. 
 For more information on Fleet Provisioning please refer to this documentation page - https://docs.aws.amazon.com/iot/latest/developerguide/provision-wo-cert.html
 
